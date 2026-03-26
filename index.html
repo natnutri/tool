@@ -679,6 +679,205 @@
     line-height: 1.6;
   }
 
+  /* ── NEW MEASUREMENT FORM ── */
+  .new-measure-toggle {
+    width: 100%;
+    height: 46px;
+    border-radius: var(--radius-sm);
+    border: 2px dashed var(--emerald);
+    background: var(--emerald-ghost);
+    color: var(--emerald);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .new-measure-toggle:hover { background: var(--emerald-pale); }
+
+  .new-measure-form {
+    display: none;
+    background: var(--emerald-ghost);
+    border: 1px solid var(--emerald-pale);
+    border-radius: var(--radius-sm);
+    padding: 20px;
+    margin-bottom: 16px;
+    animation: modalIn 0.25s ease;
+  }
+
+  .new-measure-form.open { display: block; }
+
+  .new-measure-form h4 {
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--emerald-dark);
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .nm-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 10px;
+  }
+
+  .nm-group label {
+    display: block;
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--slate-500);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+
+  .nm-group input, .nm-group textarea {
+    width: 100%;
+    height: 40px;
+    border-radius: var(--radius-xs);
+    border: 1.5px solid var(--slate-200);
+    padding: 0 12px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    color: var(--slate-800);
+    background: var(--white);
+    outline: none;
+    transition: border-color var(--transition);
+  }
+
+  .nm-group textarea {
+    height: 60px;
+    padding: 10px 12px;
+    resize: vertical;
+  }
+
+  .nm-group input:focus, .nm-group textarea:focus { border-color: var(--emerald); }
+
+  .nm-actions {
+    display: flex;
+    gap: 8px;
+    margin-top: 14px;
+  }
+
+  .btn-nm-save {
+    flex: 1;
+    height: 40px;
+    border-radius: var(--radius-xs);
+    border: none;
+    background: var(--emerald);
+    color: var(--white);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all var(--transition);
+  }
+
+  .btn-nm-save:hover { background: var(--emerald-dark); }
+
+  .btn-nm-cancel {
+    height: 40px;
+    padding: 0 20px;
+    border-radius: var(--radius-xs);
+    border: 1.5px solid var(--slate-200);
+    background: var(--white);
+    color: var(--slate-500);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  /* ── HISTORY TABLE ── */
+  .modal-history {
+    margin-bottom: 20px;
+  }
+
+  .modal-history h4 {
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--slate-700);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .history-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12px;
+    border-radius: var(--radius-xs);
+    overflow: hidden;
+  }
+
+  .history-table thead th {
+    text-align: left;
+    padding: 8px 10px;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--slate-400);
+    background: var(--slate-50);
+    border-bottom: 1px solid var(--slate-200);
+  }
+
+  .history-table tbody td {
+    padding: 10px 10px;
+    border-bottom: 1px solid var(--slate-100);
+    color: var(--slate-700);
+  }
+
+  .history-table tbody tr:last-child td { border-bottom: none; }
+
+  .history-diff {
+    font-size: 11px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 50px;
+  }
+
+  /* ── STATUS SELECTOR ── */
+  .modal-status-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+  }
+
+  .modal-status-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--slate-500);
+  }
+
+  .status-btn {
+    padding: 5px 14px;
+    border-radius: 50px;
+    font-size: 12px;
+    font-weight: 700;
+    border: 2px solid transparent;
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+  }
+
+  .status-btn.sb-new { background: var(--blue-pale); color: var(--blue); }
+  .status-btn.sb-active { background: var(--emerald-pale); color: var(--emerald); }
+  .status-btn.sb-attention { background: var(--coral-pale); color: var(--coral); }
+  .status-btn.selected { border-color: currentColor; }
+
   /* ── EMPTY STATE ── */
   .empty-state {
     text-align: center;
@@ -1171,7 +1370,10 @@ function renderDashboard() {
 }
 
 // ═══ PATIENT DETAIL MODAL ═══
+let currentPatientId = null;
+
 function openPatient(id) {
+  currentPatientId = id;
   const patients = getPatients();
   const p = patients.find(x => x.id === id);
   if (!p) return;
@@ -1180,23 +1382,110 @@ function openPatient(id) {
   const first = p.records[0];
   const diff = (last.weight - first.weight).toFixed(1);
 
+  // Build history rows (most recent first)
+  const historyRows = [...p.records].reverse().map((r, i, arr) => {
+    const prev = arr[i + 1]; // previous chronologically (next in reversed array)
+    let diffStr = '—';
+    if (prev) {
+      const d = (r.weight - prev.weight).toFixed(1);
+      const cls = d < 0 ? 'change-down' : d > 0 ? 'change-up' : 'change-none';
+      const arrow = d < 0 ? '↓' : d > 0 ? '↑' : '→';
+      diffStr = `<span class="history-diff ${cls}">${arrow} ${Math.abs(d)}kg</span>`;
+    }
+    const [y, m, d] = r.date.split('-');
+    return `
+      <tr>
+        <td>${d}/${m}/${y}</td>
+        <td><strong>${r.weight}kg</strong></td>
+        <td>${r.bmi}</td>
+        <td>${r.waist ? r.waist + 'cm' : '—'}</td>
+        <td>${r.fat ? r.fat + '%' : '—'}</td>
+        <td>${diffStr}</td>
+      </tr>
+    `;
+  }).join('');
+
   document.getElementById('modalContent').innerHTML = `
     <div class="modal-header">
       <h3>${p.name}</h3>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
     <div class="modal-body">
+
+      <!-- Status selector -->
+      <div class="modal-status-row">
+        <span class="modal-status-label">Status:</span>
+        <button class="status-btn sb-new ${p.status==='new'?'selected':''}" onclick="changeStatus('${p.id}','new')">🆕 Novo</button>
+        <button class="status-btn sb-active ${p.status==='active'?'selected':''}" onclick="changeStatus('${p.id}','active')">✅ Ativo</button>
+        <button class="status-btn sb-attention ${p.status==='attention'?'selected':''}" onclick="changeStatus('${p.id}','attention')">⚠️ Atenção</button>
+      </div>
+
+      <!-- KPI stats -->
       <div class="modal-stats">
         <div class="modal-stat"><div class="val">${last.weight}kg</div><div class="lbl">Peso atual</div></div>
         <div class="modal-stat"><div class="val">${last.bmi}</div><div class="lbl">IMC</div></div>
-        <div class="modal-stat"><div class="val">${diff > 0 ? '+' : ''}${diff}kg</div><div class="lbl">Variação</div></div>
+        <div class="modal-stat"><div class="val">${diff > 0 ? '+' : ''}${diff}kg</div><div class="lbl">Variação total</div></div>
         ${last.waist ? `<div class="modal-stat"><div class="val">${last.waist}cm</div><div class="lbl">Cintura</div></div>` : ''}
         ${last.fat ? `<div class="modal-stat"><div class="val">${last.fat}%</div><div class="lbl">Gordura</div></div>` : ''}
         ${p.goalWeight ? `<div class="modal-stat"><div class="val">${p.goalWeight}kg</div><div class="lbl">Meta</div></div>` : ''}
       </div>
 
+      <!-- New measurement button + form -->
+      <button class="new-measure-toggle" onclick="toggleMeasureForm()">
+        ➕ Registrar nova medição
+      </button>
+
+      <div class="new-measure-form" id="nmForm">
+        <h4>📏 Nova medição</h4>
+        <div class="nm-row">
+          <div class="nm-group">
+            <label>Data</label>
+            <input type="date" id="nmDate" value="${new Date().toISOString().slice(0,10)}" />
+          </div>
+          <div class="nm-group">
+            <label>Peso (kg) *</label>
+            <input type="number" step="0.1" id="nmWeight" placeholder="${last.weight}" />
+          </div>
+        </div>
+        <div class="nm-row">
+          <div class="nm-group">
+            <label>Circunf. abdominal (cm)</label>
+            <input type="number" step="0.1" id="nmWaist" placeholder="${last.waist || ''}" />
+          </div>
+          <div class="nm-group">
+            <label>% Gordura</label>
+            <input type="number" step="0.1" id="nmFat" placeholder="${last.fat || ''}" />
+          </div>
+        </div>
+        <div class="nm-row" style="grid-template-columns:1fr">
+          <div class="nm-group">
+            <label>Observações da consulta</label>
+            <textarea id="nmObs" placeholder="Anotações sobre esta consulta..."></textarea>
+          </div>
+        </div>
+        <div class="nm-actions">
+          <button class="btn-nm-save" onclick="saveMeasurement('${p.id}')">💾 Salvar medição</button>
+          <button class="btn-nm-cancel" onclick="toggleMeasureForm()">Cancelar</button>
+        </div>
+      </div>
+
+      <!-- Evolution chart -->
       <div class="modal-chart"><canvas id="modalChart"></canvas></div>
 
+      <!-- History table -->
+      <div class="modal-history">
+        <h4>📅 Histórico de medições (${p.records.length})</h4>
+        <div style="overflow-x:auto;">
+          <table class="history-table">
+            <thead>
+              <tr><th>Data</th><th>Peso</th><th>IMC</th><th>Cintura</th><th>Gordura</th><th>Variação</th></tr>
+            </thead>
+            <tbody>${historyRows}</tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Patient info -->
       <div class="modal-notes">
         <h4>📋 Informações do paciente</h4>
         <p>
@@ -1213,18 +1502,26 @@ function openPatient(id) {
 
   document.getElementById('modalOverlay').classList.add('open');
 
-  // mini chart
+  // Chart
   setTimeout(() => {
     const labels = p.records.map(r => { const [,m,d] = r.date.split('-'); return d+'/'+m; });
+    const datasets = [
+      { label: 'Peso (kg)', data: p.records.map(r => r.weight), borderColor: '#2D9D78', backgroundColor: '#2D9D7820', borderWidth: 2.5, pointRadius: 5, tension: 0.3, fill: true }
+    ];
+    if (p.records.some(r => r.waist)) {
+      datasets.push({ label: 'Cintura (cm)', data: p.records.map(r => r.waist), borderColor: '#E5A832', borderWidth: 2, pointRadius: 4, tension: 0.3, borderDash: [5,3] });
+    }
+    if (p.records.some(r => r.fat)) {
+      datasets.push({ label: 'Gordura (%)', data: p.records.map(r => r.fat), borderColor: '#E06B5E', borderWidth: 2, pointRadius: 4, tension: 0.3, borderDash: [3,3] });
+    }
+    // Goal weight line
+    if (p.goalWeight) {
+      datasets.push({ label: 'Meta', data: p.records.map(() => p.goalWeight), borderColor: '#4A8FD6', borderWidth: 1.5, pointRadius: 0, borderDash: [8,4], fill: false });
+    }
+
     new Chart(document.getElementById('modalChart'), {
       type: 'line',
-      data: {
-        labels,
-        datasets: [
-          { label: 'Peso', data: p.records.map(r => r.weight), borderColor: '#2D9D78', backgroundColor: '#2D9D7820', borderWidth: 2.5, pointRadius: 5, tension: 0.3, fill: true },
-          ...(p.records[0].waist ? [{ label: 'Cintura', data: p.records.map(r => r.waist), borderColor: '#E5A832', borderWidth: 2, pointRadius: 4, tension: 0.3, borderDash: [5,3] }] : [])
-        ]
-      },
+      data: { labels, datasets },
       options: {
         responsive: true,
         maintainAspectRatio: false,
@@ -1238,7 +1535,62 @@ function openPatient(id) {
   }, 100);
 }
 
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); }
+function toggleMeasureForm() {
+  const form = document.getElementById('nmForm');
+  form.classList.toggle('open');
+}
+
+function saveMeasurement(patientId) {
+  const weight = parseFloat(document.getElementById('nmWeight').value);
+  if (!weight) { alert('Informe pelo menos o peso.'); return; }
+
+  const patients = getPatients();
+  const p = patients.find(x => x.id === patientId);
+  if (!p) return;
+
+  const height = p.records[0].height;
+  const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
+
+  const newRecord = {
+    date: document.getElementById('nmDate').value || new Date().toISOString().slice(0, 10),
+    weight,
+    height,
+    bmi: parseFloat(bmi),
+    waist: parseFloat(document.getElementById('nmWaist').value) || null,
+    fat: parseFloat(document.getElementById('nmFat').value) || null,
+    obs: document.getElementById('nmObs').value || null
+  };
+
+  p.records.push(newRecord);
+  // Sort records by date
+  p.records.sort((a, b) => a.date.localeCompare(b.date));
+  // Auto-update status from 'new' to 'active'
+  if (p.status === 'new') p.status = 'active';
+
+  savePatients(patients);
+
+  // Reopen the modal to refresh everything
+  openPatient(patientId);
+}
+
+function changeStatus(patientId, newStatus) {
+  const patients = getPatients();
+  const p = patients.find(x => x.id === patientId);
+  if (!p) return;
+  p.status = newStatus;
+  savePatients(patients);
+  // Update buttons visually
+  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.sb-${newStatus}`).classList.add('selected');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+  // Refresh dashboard if it's visible
+  if (document.getElementById('dashView').classList.contains('active')) {
+    renderDashboard();
+  }
+}
 
 // ═══ INIT ═══
 </script>
