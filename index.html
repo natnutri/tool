@@ -3,1596 +3,624 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>NutriGestão — Painel do Nutricionista</title>
+<title>NutriGestão — Painel</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Fraunces:ital,wght@0,700;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <style>
-  :root {
-    --emerald: #2D9D78;
-    --emerald-dark: #1E7A5C;
-    --emerald-light: #3DB88E;
-    --emerald-pale: #E6F7F0;
-    --emerald-ghost: #F2FBF7;
-    --amber: #E5A832;
-    --amber-pale: #FFF8E7;
-    --coral: #E06B5E;
-    --coral-pale: #FFF0EE;
-    --blue: #4A8FD6;
-    --blue-pale: #EBF3FC;
-    --slate-900: #1A1D23;
-    --slate-800: #2A2D35;
-    --slate-700: #3A3D45;
-    --slate-500: #6B7080;
-    --slate-400: #9196A1;
-    --slate-300: #B8BCC6;
-    --slate-200: #DFE1E6;
-    --slate-100: #F0F1F4;
-    --slate-50: #F7F8FA;
-    --white: #FFFFFF;
-    --radius: 16px;
-    --radius-sm: 10px;
-    --radius-xs: 6px;
-    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06);
-    --shadow-md: 0 4px 16px rgba(0,0,0,0.08);
-    --shadow-lg: 0 12px 40px rgba(0,0,0,0.1);
-    --transition: 0.2s ease;
-  }
-
-  * { margin: 0; padding: 0; box-sizing: border-box; }
-
-  body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background: var(--slate-50);
-    color: var(--slate-800);
-    min-height: 100vh;
-  }
-
-  /* ═══════════════════════════════════════════
-     VIEW TOGGLE — Patient Form vs Dashboard
-     ═══════════════════════════════════════════ */
-  .view-toggle {
-    position: fixed;
-    top: 16px;
-    right: 16px;
-    z-index: 500;
-    display: flex;
-    background: var(--white);
-    border-radius: 50px;
-    padding: 4px;
-    box-shadow: var(--shadow-md);
-    border: 1px solid var(--slate-200);
-  }
-
-  .view-btn {
-    padding: 8px 16px;
-    border-radius: 50px;
-    border: none;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 600;
-    cursor: pointer;
-    transition: all var(--transition);
-    background: transparent;
-    color: var(--slate-500);
-  }
-
-  .view-btn.active {
-    background: var(--emerald);
-    color: var(--white);
-  }
-
-  /* ═══════════════════════════════════════════
-     PATIENT INTAKE FORM
-     ═══════════════════════════════════════════ */
-  .patient-view {
-    display: none;
-    min-height: 100vh;
-    background: linear-gradient(135deg, var(--emerald-ghost) 0%, var(--white) 50%, var(--slate-50) 100%);
-  }
-
-  .patient-view.active { display: block; }
-
-  .form-wrapper {
-    max-width: 520px;
-    margin: 0 auto;
-    padding: 40px 24px 60px;
-  }
-
-  .form-header {
-    text-align: center;
-    margin-bottom: 36px;
-  }
-
-  .form-logo {
-    width: 56px; height: 56px;
-    border-radius: 18px;
-    background: var(--emerald);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 26px;
-    margin: 0 auto 16px;
-    box-shadow: 0 8px 24px rgba(45,157,120,0.3);
-  }
-
-  .form-header h1 {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--slate-900);
-    margin-bottom: 6px;
-  }
-
-  .form-header p {
-    font-size: 14px;
-    color: var(--slate-500);
-  }
-
-  .form-section {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 24px;
-    margin-bottom: 16px;
-    box-shadow: var(--shadow-sm);
-    border: 1px solid var(--slate-100);
-  }
-
-  .form-section-title {
-    font-size: 13px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    color: var(--emerald);
-    margin-bottom: 18px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .form-section-title span { font-size: 16px; }
-
-  .form-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 14px;
-    margin-bottom: 14px;
-  }
-
-  .form-row.single { grid-template-columns: 1fr; }
-
-  .form-group { margin-bottom: 0; }
-
-  .form-group label {
-    display: block;
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--slate-700);
-    margin-bottom: 6px;
-  }
-
-  .form-group input,
-  .form-group select,
-  .form-group textarea {
-    width: 100%;
-    height: 44px;
-    border-radius: var(--radius-sm);
-    border: 1.5px solid var(--slate-200);
-    padding: 0 14px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
-    color: var(--slate-800);
-    background: var(--slate-50);
-    outline: none;
-    transition: border-color var(--transition);
-  }
-
-  .form-group textarea {
-    height: 80px;
-    padding: 12px 14px;
-    resize: vertical;
-  }
-
-  .form-group input:focus,
-  .form-group select:focus,
-  .form-group textarea:focus {
-    border-color: var(--emerald);
-    background: var(--white);
-  }
-
-  .form-group input::placeholder { color: var(--slate-400); }
-
-  .btn-submit {
-    width: 100%;
-    height: 52px;
-    border-radius: var(--radius);
-    border: none;
-    background: var(--emerald);
-    color: var(--white);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.25s ease;
-    box-shadow: 0 8px 28px rgba(45,157,120,0.3);
-    margin-top: 8px;
-  }
-
-  .btn-submit:hover { background: var(--emerald-dark); transform: translateY(-1px); }
-
-  .form-success {
-    display: none;
-    text-align: center;
-    padding: 60px 24px;
-  }
-
-  .form-success.show { display: block; }
-
-  .form-success .icon { font-size: 64px; margin-bottom: 20px; }
-
-  .form-success h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 24px;
-    color: var(--slate-900);
-    margin-bottom: 10px;
-  }
-
-  .form-success p {
-    font-size: 15px;
-    color: var(--slate-500);
-    line-height: 1.6;
-  }
-
-  /* ═══════════════════════════════════════════
-     DASHBOARD
-     ═══════════════════════════════════════════ */
-  .dashboard-view {
-    display: none;
-    min-height: 100vh;
-  }
-
-  .dashboard-view.active { display: block; }
-
-  /* top bar */
-  .topbar {
-    background: var(--white);
-    border-bottom: 1px solid var(--slate-100);
-    padding: 16px 32px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    position: sticky;
-    top: 0;
-    z-index: 50;
-  }
-
-  .topbar-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-  }
-
-  .topbar-logo {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: var(--emerald);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 18px;
-  }
-
-  .topbar-title {
-    font-weight: 800;
-    font-size: 18px;
-    color: var(--slate-900);
-  }
-
-  .topbar-title em {
-    font-style: normal;
-    color: var(--emerald);
-  }
-
-  .topbar-right {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-  }
-
-  .topbar-date {
-    font-size: 13px;
-    color: var(--slate-500);
-  }
-
-  .topbar-avatar {
-    width: 36px; height: 36px;
-    border-radius: 10px;
-    background: var(--emerald-pale);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 16px;
-  }
-
-  /* main content */
-  .dash-main {
-    padding: 28px 32px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-
-  .dash-greeting {
-    margin-bottom: 28px;
-  }
-
-  .dash-greeting h2 {
-    font-family: 'Fraunces', serif;
-    font-size: 26px;
-    font-weight: 700;
-    color: var(--slate-900);
-    margin-bottom: 4px;
-  }
-
-  .dash-greeting p {
-    font-size: 14px;
-    color: var(--slate-500);
-  }
-
-  /* KPI cards */
-  .kpi-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 16px;
-    margin-bottom: 28px;
-  }
-
-  .kpi-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    padding: 20px;
-    border: 1px solid var(--slate-100);
-    transition: all var(--transition);
-  }
-
-  .kpi-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
-
-  .kpi-icon {
-    width: 40px; height: 40px;
-    border-radius: var(--radius-sm);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 20px;
-    margin-bottom: 14px;
-  }
-
-  .kpi-icon.green { background: var(--emerald-pale); }
-  .kpi-icon.amber { background: var(--amber-pale); }
-  .kpi-icon.coral { background: var(--coral-pale); }
-  .kpi-icon.blue { background: var(--blue-pale); }
-
-  .kpi-value {
-    font-size: 28px;
-    font-weight: 800;
-    color: var(--slate-900);
-    line-height: 1;
-    margin-bottom: 4px;
-  }
-
-  .kpi-label {
-    font-size: 13px;
-    color: var(--slate-500);
-  }
-
-  /* two column layout */
-  .dash-columns {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 20px;
-    margin-bottom: 28px;
-  }
-
-  .dash-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--slate-100);
-    overflow: hidden;
-  }
-
-  .dash-card-header {
-    padding: 18px 20px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .dash-card-title {
-    font-size: 15px;
-    font-weight: 700;
-    color: var(--slate-900);
-  }
-
-  .dash-card-badge {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 4px 10px;
-    border-radius: 50px;
-    background: var(--emerald-pale);
-    color: var(--emerald);
-  }
-
-  .dash-card-body {
-    padding: 16px 20px 20px;
-  }
-
-  /* chart */
-  .chart-container {
-    position: relative;
-    height: 220px;
-  }
-
-  /* patient list */
-  .patient-list { list-style: none; }
-
-  .patient-item {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--slate-100);
-    cursor: pointer;
-    transition: all var(--transition);
-  }
-
-  .patient-item:last-child { border-bottom: none; }
-  .patient-item:hover { padding-left: 6px; }
-
-  .patient-avatar {
-    width: 40px; height: 40px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 14px;
-    font-weight: 800;
-    color: var(--white);
-    flex-shrink: 0;
-  }
-
-  .patient-info { flex: 1; min-width: 0; }
-
-  .patient-name {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--slate-900);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-
-  .patient-meta {
-    font-size: 12px;
-    color: var(--slate-400);
-    margin-top: 2px;
-  }
-
-  .patient-status {
-    padding: 4px 10px;
-    border-radius: 50px;
-    font-size: 11px;
-    font-weight: 700;
-    flex-shrink: 0;
-  }
-
-  .status-new { background: var(--blue-pale); color: var(--blue); }
-  .status-active { background: var(--emerald-pale); color: var(--emerald); }
-  .status-attention { background: var(--coral-pale); color: var(--coral); }
-
-  /* full width table card */
-  .dash-full-card {
-    background: var(--white);
-    border-radius: var(--radius);
-    border: 1px solid var(--slate-100);
-    overflow: hidden;
-  }
-
-  .table-scroll { overflow-x: auto; }
-
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 13px;
-  }
-
-  thead th {
-    text-align: left;
-    padding: 12px 16px;
-    font-size: 11px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--slate-400);
-    background: var(--slate-50);
-    border-bottom: 1px solid var(--slate-100);
-    white-space: nowrap;
-  }
-
-  tbody td {
-    padding: 14px 16px;
-    border-bottom: 1px solid var(--slate-100);
-    color: var(--slate-700);
-    white-space: nowrap;
-  }
-
-  tbody tr:hover { background: var(--emerald-ghost); }
-  tbody tr:last-child td { border-bottom: none; }
-
-  .td-name {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    font-weight: 700;
-    color: var(--slate-900);
-  }
-
-  .td-avatar {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-weight: 800;
-    color: var(--white);
-    flex-shrink: 0;
-  }
-
-  .td-change {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    font-weight: 700;
-    font-size: 12px;
-    padding: 3px 8px;
-    border-radius: 50px;
-  }
-
-  .change-down { background: var(--emerald-pale); color: var(--emerald); }
-  .change-up { background: var(--coral-pale); color: var(--coral); }
-  .change-none { background: var(--slate-100); color: var(--slate-500); }
-
-  .td-goal {
-    font-size: 12px;
-    padding: 4px 10px;
-    border-radius: 50px;
-    font-weight: 600;
-  }
-
-  .goal-emagrecer { background: var(--blue-pale); color: var(--blue); }
-  .goal-massa { background: var(--amber-pale); color: var(--amber); }
-  .goal-saude { background: var(--emerald-pale); color: var(--emerald); }
-  .goal-esportivo { background: var(--coral-pale); color: var(--coral); }
-
-  /* ── DETAIL MODAL ── */
-  .modal-overlay {
-    display: none;
-    position: fixed;
-    inset: 0;
-    background: rgba(26,29,35,0.5);
-    backdrop-filter: blur(4px);
-    z-index: 600;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-  }
-
-  .modal-overlay.open { display: flex; }
-
-  .modal-content {
-    background: var(--white);
-    border-radius: 20px;
-    width: 100%;
-    max-width: 560px;
-    max-height: 85vh;
-    overflow-y: auto;
-    box-shadow: var(--shadow-lg);
-    animation: modalIn 0.3s ease;
-  }
-
-  @keyframes modalIn {
-    from { opacity: 0; transform: scale(0.95) translateY(10px); }
-    to { opacity: 1; transform: scale(1) translateY(0); }
-  }
-
-  .modal-header {
-    padding: 24px 24px 0;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-
-  .modal-header h3 {
-    font-family: 'Fraunces', serif;
-    font-size: 20px;
-    color: var(--slate-900);
-  }
-
-  .modal-close {
-    width: 32px; height: 32px;
-    border-radius: 8px;
-    border: none;
-    background: var(--slate-100);
-    cursor: pointer;
-    font-size: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-body { padding: 20px 24px 28px; }
-
-  .modal-stats {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 12px;
-    margin-bottom: 20px;
-  }
-
-  .modal-stat {
-    background: var(--slate-50);
-    border-radius: var(--radius-sm);
-    padding: 14px;
-    text-align: center;
-  }
-
-  .modal-stat .val {
-    font-size: 22px;
-    font-weight: 800;
-    color: var(--slate-900);
-  }
-
-  .modal-stat .lbl {
-    font-size: 11px;
-    color: var(--slate-400);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 2px;
-  }
-
-  .modal-chart { height: 200px; margin-bottom: 20px; }
-
-  .modal-notes {
-    background: var(--emerald-ghost);
-    border-radius: var(--radius-sm);
-    padding: 16px;
-  }
-
-  .modal-notes h4 {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--emerald);
-    margin-bottom: 8px;
-  }
-
-  .modal-notes p {
-    font-size: 13px;
-    color: var(--slate-700);
-    line-height: 1.6;
-  }
-
-  /* ── NEW MEASUREMENT FORM ── */
-  .new-measure-toggle {
-    width: 100%;
-    height: 46px;
-    border-radius: var(--radius-sm);
-    border: 2px dashed var(--emerald);
-    background: var(--emerald-ghost);
-    color: var(--emerald);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 14px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-  }
-
-  .new-measure-toggle:hover { background: var(--emerald-pale); }
-
-  .new-measure-form {
-    display: none;
-    background: var(--emerald-ghost);
-    border: 1px solid var(--emerald-pale);
-    border-radius: var(--radius-sm);
-    padding: 20px;
-    margin-bottom: 16px;
-    animation: modalIn 0.25s ease;
-  }
-
-  .new-measure-form.open { display: block; }
-
-  .new-measure-form h4 {
-    font-size: 14px;
-    font-weight: 700;
-    color: var(--emerald-dark);
-    margin-bottom: 14px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .nm-row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 10px;
-    margin-bottom: 10px;
-  }
-
-  .nm-group label {
-    display: block;
-    font-size: 11px;
-    font-weight: 700;
-    color: var(--slate-500);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-bottom: 4px;
-  }
-
-  .nm-group input, .nm-group textarea {
-    width: 100%;
-    height: 40px;
-    border-radius: var(--radius-xs);
-    border: 1.5px solid var(--slate-200);
-    padding: 0 12px;
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    color: var(--slate-800);
-    background: var(--white);
-    outline: none;
-    transition: border-color var(--transition);
-  }
-
-  .nm-group textarea {
-    height: 60px;
-    padding: 10px 12px;
-    resize: vertical;
-  }
-
-  .nm-group input:focus, .nm-group textarea:focus { border-color: var(--emerald); }
-
-  .nm-actions {
-    display: flex;
-    gap: 8px;
-    margin-top: 14px;
-  }
-
-  .btn-nm-save {
-    flex: 1;
-    height: 40px;
-    border-radius: var(--radius-xs);
-    border: none;
-    background: var(--emerald);
-    color: var(--white);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
-  }
-
-  .btn-nm-save:hover { background: var(--emerald-dark); }
-
-  .btn-nm-cancel {
-    height: 40px;
-    padding: 0 20px;
-    border-radius: var(--radius-xs);
-    border: 1.5px solid var(--slate-200);
-    background: var(--white);
-    color: var(--slate-500);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 600;
-    cursor: pointer;
-  }
-
-  /* ── HISTORY TABLE ── */
-  .modal-history {
-    margin-bottom: 20px;
-  }
-
-  .modal-history h4 {
-    font-size: 13px;
-    font-weight: 700;
-    color: var(--slate-700);
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  .history-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 12px;
-    border-radius: var(--radius-xs);
-    overflow: hidden;
-  }
-
-  .history-table thead th {
-    text-align: left;
-    padding: 8px 10px;
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    color: var(--slate-400);
-    background: var(--slate-50);
-    border-bottom: 1px solid var(--slate-200);
-  }
-
-  .history-table tbody td {
-    padding: 10px 10px;
-    border-bottom: 1px solid var(--slate-100);
-    color: var(--slate-700);
-  }
-
-  .history-table tbody tr:last-child td { border-bottom: none; }
-
-  .history-diff {
-    font-size: 11px;
-    font-weight: 700;
-    padding: 2px 6px;
-    border-radius: 50px;
-  }
-
-  /* ── STATUS SELECTOR ── */
-  .modal-status-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
-  }
-
-  .modal-status-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: var(--slate-500);
-  }
-
-  .status-btn {
-    padding: 5px 14px;
-    border-radius: 50px;
-    font-size: 12px;
-    font-weight: 700;
-    border: 2px solid transparent;
-    cursor: pointer;
-    transition: all var(--transition);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-  }
-
-  .status-btn.sb-new { background: var(--blue-pale); color: var(--blue); }
-  .status-btn.sb-active { background: var(--emerald-pale); color: var(--emerald); }
-  .status-btn.sb-attention { background: var(--coral-pale); color: var(--coral); }
-  .status-btn.selected { border-color: currentColor; }
-
-  /* ── EMPTY STATE ── */
-  .empty-state {
-    text-align: center;
-    padding: 48px 24px;
-    color: var(--slate-400);
-  }
-
-  .empty-state .icon { font-size: 48px; margin-bottom: 12px; }
-  .empty-state h3 { font-size: 16px; color: var(--slate-700); margin-bottom: 6px; }
-  .empty-state p { font-size: 13px; line-height: 1.6; }
-
-  .btn-add-demo {
-    margin-top: 16px;
-    padding: 10px 24px;
-    border-radius: 50px;
-    border: 2px solid var(--emerald);
-    background: transparent;
-    color: var(--emerald);
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    font-size: 13px;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all var(--transition);
-  }
-
-  .btn-add-demo:hover { background: var(--emerald); color: var(--white); }
-
-  /* ── RESPONSIVE ── */
-  @media (max-width: 900px) {
-    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
-    .dash-columns { grid-template-columns: 1fr; }
-    .dash-main { padding: 20px 16px; }
-    .topbar { padding: 14px 16px; }
-  }
-
-  @media (max-width: 500px) {
-    .kpi-grid { grid-template-columns: 1fr 1fr; }
-    .kpi-value { font-size: 22px; }
-    .modal-stats { grid-template-columns: repeat(2, 1fr); }
-  }
+:root{
+  --em:#2D9D78;--em-d:#1E7A5C;--em-l:#3DB88E;--em-p:#E6F7F0;--em-g:#F2FBF7;
+  --amb:#E5A832;--amb-p:#FFF8E7;--cor:#E06B5E;--cor-p:#FFF0EE;--blu:#4A8FD6;--blu-p:#EBF3FC;
+  --s9:#1A1D23;--s8:#2A2D35;--s7:#3A3D45;--s5:#6B7080;--s4:#9196A1;--s3:#B8BCC6;
+  --s2:#DFE1E6;--s1:#F0F1F4;--s0:#F7F8FA;--w:#FFFFFF;
+  --r:16px;--rs:10px;--rx:6px;
+}
+*{margin:0;padding:0;box-sizing:border-box;}
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--s0);color:var(--s8);min-height:100vh;}
+
+/* ═══ SIDEBAR ═══ */
+.sidebar{position:fixed;top:0;left:0;bottom:0;width:220px;background:var(--s9);padding:24px 16px;display:flex;flex-direction:column;z-index:100;}
+.sidebar-logo{display:flex;align-items:center;gap:10px;margin-bottom:36px;padding:0 4px;}
+.sidebar-logo-icon{width:34px;height:34px;border-radius:10px;background:var(--em);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.sidebar-logo span{font-weight:800;font-size:16px;color:var(--w);}
+.sidebar-logo em{font-style:normal;color:var(--em-l);}
+
+.nav-group{margin-bottom:8px;}
+.nav-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--s5);padding:0 12px;margin-bottom:8px;}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--rs);cursor:pointer;transition:all 0.15s;color:var(--s4);font-size:13px;font-weight:600;border:none;background:none;width:100%;text-align:left;font-family:inherit;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:var(--s3);}
+.nav-item.active{background:rgba(45,157,120,0.15);color:var(--em-l);}
+.nav-item span{font-size:18px;width:24px;text-align:center;}
+.nav-spacer{flex:1;}
+
+/* ═══ MAIN AREA ═══ */
+.main{margin-left:220px;min-height:100vh;}
+.topbar{background:var(--w);border-bottom:1px solid var(--s1);padding:16px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:50;}
+.topbar h2{font-family:'Fraunces',serif;font-size:22px;color:var(--s9);}
+.topbar-right{display:flex;align-items:center;gap:14px;}
+.topbar-date{font-size:13px;color:var(--s5);}
+.topbar-avatar{width:36px;height:36px;border-radius:10px;background:var(--em-p);display:flex;align-items:center;justify-content:center;font-size:16px;}
+
+.page{display:none;padding:28px 32px;max-width:1200px;}
+.page.active{display:block;}
+
+/* ═══ KPI CARDS ═══ */
+.kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:28px;}
+.kpi{background:var(--w);border-radius:var(--r);padding:20px;border:1px solid var(--s1);transition:all 0.2s;}
+.kpi:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);transform:translateY(-2px);}
+.kpi-icon{width:40px;height:40px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;font-size:20px;margin-bottom:14px;}
+.kpi-val{font-size:28px;font-weight:800;color:var(--s9);line-height:1;margin-bottom:4px;}
+.kpi-lbl{font-size:13px;color:var(--s5);}
+.bg-g{background:var(--em-p);}.bg-a{background:var(--amb-p);}.bg-c{background:var(--cor-p);}.bg-b{background:var(--blu-p);}
+
+/* ═══ CARDS ═══ */
+.card{background:var(--w);border-radius:var(--r);border:1px solid var(--s1);overflow:hidden;margin-bottom:20px;}
+.card-h{padding:18px 20px 0;display:flex;align-items:center;justify-content:space-between;}
+.card-t{font-size:15px;font-weight:700;color:var(--s9);}
+.badge{font-size:11px;font-weight:700;padding:4px 10px;border-radius:50px;background:var(--em-p);color:var(--em);}
+.card-b{padding:16px 20px 20px;}
+
+/* ═══ COLUMNS ═══ */
+.cols{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:20px;}
+
+/* ═══ CHART ═══ */
+.chart-c{position:relative;height:220px;}
+
+/* ═══ TABLE ═══ */
+.tbl-wrap{overflow-x:auto;}
+table{width:100%;border-collapse:collapse;font-size:13px;}
+thead th{text-align:left;padding:12px 16px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--s4);background:var(--s0);border-bottom:1px solid var(--s1);white-space:nowrap;}
+tbody td{padding:14px 16px;border-bottom:1px solid var(--s1);color:var(--s7);white-space:nowrap;}
+tbody tr:hover{background:var(--em-g);}
+tbody tr:last-child td{border-bottom:none;}
+.td-name{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--s9);}
+.td-av{width:32px;height:32px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;color:var(--w);flex-shrink:0;}
+.td-ch{display:inline-flex;align-items:center;gap:4px;font-weight:700;font-size:12px;padding:3px 8px;border-radius:50px;}
+.ch-dn{background:var(--em-p);color:var(--em);}.ch-up{background:var(--cor-p);color:var(--cor);}.ch-eq{background:var(--s1);color:var(--s5);}
+.td-goal{font-size:12px;padding:4px 10px;border-radius:50px;font-weight:600;}
+.g-em{background:var(--blu-p);color:var(--blu);}.g-ma{background:var(--amb-p);color:var(--amb);}.g-sa{background:var(--em-p);color:var(--em);}.g-es{background:var(--cor-p);color:var(--cor);}
+.p-status{padding:4px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+.st-new{background:var(--blu-p);color:var(--blu);}.st-active{background:var(--em-p);color:var(--em);}.st-attention{background:var(--cor-p);color:var(--cor);}
+
+/* ═══ PATIENT LIST ═══ */
+.pat-list{list-style:none;}
+.pat-item{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--s1);cursor:pointer;transition:all 0.15s;}
+.pat-item:last-child{border-bottom:none;}
+.pat-item:hover{padding-left:6px;}
+.pat-av{width:40px;height:40px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;color:var(--w);flex-shrink:0;}
+.pat-info{flex:1;min-width:0;}
+.pat-name{font-size:14px;font-weight:700;color:var(--s9);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.pat-meta{font-size:12px;color:var(--s4);margin-top:2px;}
+
+/* ═══ MODAL ═══ */
+.modal-ov{display:none;position:fixed;inset:0;background:rgba(26,29,35,0.5);backdrop-filter:blur(4px);z-index:600;align-items:center;justify-content:center;padding:20px;}
+.modal-ov.open{display:flex;}
+.modal{background:var(--w);border-radius:20px;width:100%;max-width:600px;max-height:88vh;overflow-y:auto;box-shadow:0 12px 40px rgba(0,0,0,0.15);animation:mIn 0.3s ease;}
+@keyframes mIn{from{opacity:0;transform:scale(0.95) translateY(10px)}to{opacity:1;transform:scale(1) translateY(0)}}
+.modal-h{padding:24px 24px 0;display:flex;align-items:center;justify-content:space-between;}
+.modal-h h3{font-family:'Fraunces',serif;font-size:20px;color:var(--s9);}
+.modal-x{width:32px;height:32px;border-radius:8px;border:none;background:var(--s1);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;}
+.modal-bd{padding:20px 24px 28px;}
+
+/* modal stats */
+.m-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:20px;}
+.m-stat{background:var(--s0);border-radius:var(--rs);padding:14px;text-align:center;}
+.m-stat .v{font-size:22px;font-weight:800;color:var(--s9);}
+.m-stat .l{font-size:11px;color:var(--s4);text-transform:uppercase;letter-spacing:0.5px;margin-top:2px;}
+
+/* status row */
+.status-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;flex-wrap:wrap;}
+.status-row>span:first-child{font-size:13px;font-weight:600;color:var(--s5);}
+.sb{padding:5px 14px;border-radius:50px;font-size:12px;font-weight:700;border:2px solid transparent;cursor:pointer;transition:all 0.15s;font-family:inherit;}
+.sb-n{background:var(--blu-p);color:var(--blu);}.sb-a{background:var(--em-p);color:var(--em);}.sb-t{background:var(--cor-p);color:var(--cor);}
+.sb.sel{border-color:currentColor;}
+
+/* new measure */
+.nm-toggle{width:100%;height:46px;border-radius:var(--rs);border:2px dashed var(--em);background:var(--em-g);color:var(--em);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.15s;}
+.nm-toggle:hover{background:var(--em-p);}
+.nm-form{display:none;background:var(--em-g);border:1px solid var(--em-p);border-radius:var(--rs);padding:20px;margin-bottom:16px;animation:mIn 0.2s ease;}
+.nm-form.open{display:block;}
+.nm-form h4{font-size:14px;font-weight:700;color:var(--em-d);margin-bottom:14px;}
+.nm-r{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.nm-g label{display:block;font-size:11px;font-weight:700;color:var(--s5);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.nm-g input,.nm-g textarea{width:100%;height:40px;border-radius:var(--rx);border:1.5px solid var(--s2);padding:0 12px;font-family:inherit;font-size:13px;color:var(--s8);background:var(--w);outline:none;transition:border-color 0.2s;}
+.nm-g textarea{height:60px;padding:10px 12px;resize:vertical;}
+.nm-g input:focus,.nm-g textarea:focus{border-color:var(--em);}
+.nm-acts{display:flex;gap:8px;margin-top:14px;}
+.btn-nm{flex:1;height:40px;border-radius:var(--rx);border:none;background:var(--em);color:var(--w);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.btn-nm:hover{background:var(--em-d);}
+.btn-nmc{height:40px;padding:0 20px;border-radius:var(--rx);border:1.5px solid var(--s2);background:var(--w);color:var(--s5);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+
+/* history table */
+.hist{margin-bottom:20px;}
+.hist h4{font-size:13px;font-weight:700;color:var(--s7);margin-bottom:10px;}
+.htbl{width:100%;border-collapse:collapse;font-size:12px;}
+.htbl thead th{text-align:left;padding:8px 10px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.5px;color:var(--s4);background:var(--s0);border-bottom:1px solid var(--s2);}
+.htbl tbody td{padding:10px;border-bottom:1px solid var(--s1);color:var(--s7);}
+.htbl tbody tr:last-child td{border-bottom:none;}
+
+/* notes */
+.m-notes{background:var(--em-g);border-radius:var(--rs);padding:16px;margin-bottom:16px;}
+.m-notes h4{font-size:13px;font-weight:700;color:var(--em);margin-bottom:8px;}
+.m-notes p{font-size:13px;color:var(--s7);line-height:1.6;}
+
+.m-chart{height:200px;margin-bottom:20px;}
+
+/* ═══ FINANCIAL ═══ */
+.fin-form{display:grid;grid-template-columns:2fr 1fr 1fr 1fr auto;gap:10px;align-items:end;margin-bottom:20px;}
+.fin-form .nm-g{margin:0;}
+.btn-fin{height:40px;padding:0 16px;border-radius:var(--rx);border:none;background:var(--em);color:var(--w);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.fin-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px;}
+.fin-box{background:var(--w);border-radius:var(--rs);padding:18px;text-align:center;border:1px solid var(--s1);}
+.fin-box .v{font-size:24px;font-weight:800;color:var(--s9);}
+.fin-box .l{font-size:12px;color:var(--s4);margin-top:4px;}
+.fin-box.green .v{color:var(--em);}.fin-box.red .v{color:var(--cor);}.fin-box.blue .v{color:var(--blu);}
+.pay-status{padding:3px 10px;border-radius:50px;font-size:11px;font-weight:700;}
+.pay-ok{background:var(--em-p);color:var(--em);}.pay-pend{background:var(--amb-p);color:var(--amb);}.pay-late{background:var(--cor-p);color:var(--cor);}
+
+/* ═══ MEAL PLAN ═══ */
+.meal-builder{margin-bottom:20px;}
+.meal-patient-select{display:flex;gap:10px;align-items:end;margin-bottom:20px;}
+.meal-patient-select select{flex:1;height:44px;border-radius:var(--rs);border:1.5px solid var(--s2);padding:0 14px;font-family:inherit;font-size:14px;color:var(--s7);background:var(--s0);}
+.btn-meal-new{height:44px;padding:0 20px;border-radius:var(--rs);border:none;background:var(--em);color:var(--w);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.meal-card{background:var(--w);border-radius:var(--r);border:1px solid var(--s1);margin-bottom:16px;overflow:hidden;}
+.meal-card-h{padding:16px 20px;background:var(--em-g);display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--em-p);}
+.meal-card-h strong{font-size:15px;color:var(--em-d);}
+.meal-card-h .meal-kcal{font-size:12px;font-weight:700;color:var(--em);background:var(--em-p);padding:4px 12px;border-radius:50px;}
+.meal-rows{padding:12px 20px;}
+.meal-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--s1);}
+.meal-row:last-child{border-bottom:none;}
+.meal-row input{flex:1;height:36px;border-radius:var(--rx);border:1.5px solid var(--s2);padding:0 10px;font-family:inherit;font-size:13px;color:var(--s7);outline:none;}
+.meal-row input:focus{border-color:var(--em);}
+.meal-row input.qty{width:70px;flex:none;text-align:center;}
+.meal-row-del{width:28px;height:28px;border-radius:6px;border:none;background:var(--cor-p);color:var(--cor);cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-add-food{width:100%;padding:10px;border:2px dashed var(--s2);border-radius:var(--rx);background:transparent;color:var(--s5);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;margin-top:4px;}
+.btn-add-food:hover{border-color:var(--em);color:var(--em);}
+.btn-add-meal{display:flex;align-items:center;justify-content:center;gap:6px;width:100%;padding:14px;border:2px dashed var(--em);border-radius:var(--r);background:var(--em-g);color:var(--em);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:16px;}
+.btn-add-meal:hover{background:var(--em-p);}
+.meal-actions{display:flex;gap:10px;}
+.btn-save-plan{flex:1;height:48px;border-radius:var(--rs);border:none;background:var(--em);color:var(--w);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(45,157,120,0.3);}
+.btn-save-plan:hover{background:var(--em-d);}
+.btn-print-plan{height:48px;padding:0 20px;border-radius:var(--rs);border:2px solid var(--s2);background:var(--w);color:var(--s7);font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;}
+.saved-plans{margin-top:24px;}
+.saved-plan{background:var(--w);border-radius:var(--rs);border:1px solid var(--s1);padding:16px 20px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;transition:all 0.15s;}
+.saved-plan:hover{box-shadow:0 4px 12px rgba(0,0,0,0.06);}
+.saved-plan-info{display:flex;align-items:center;gap:12px;}
+.saved-plan-info span{font-size:24px;}
+.sp-name{font-weight:700;color:var(--s9);font-size:14px;}
+.sp-meta{font-size:12px;color:var(--s4);margin-top:2px;}
+.sp-badge{font-size:12px;font-weight:700;padding:4px 12px;border-radius:50px;background:var(--em-p);color:var(--em);}
+
+/* ═══ EMPTY ═══ */
+.empty{text-align:center;padding:48px 24px;color:var(--s4);}
+.empty .ico{font-size:48px;margin-bottom:12px;}
+.empty h3{font-size:16px;color:var(--s7);margin-bottom:6px;}
+.empty p{font-size:13px;line-height:1.6;}
+.btn-demo{margin-top:16px;padding:10px 24px;border-radius:50px;border:2px solid var(--em);background:transparent;color:var(--em);font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;transition:all 0.15s;}
+.btn-demo:hover{background:var(--em);color:var(--w);}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:1000px){
+  .sidebar{width:60px;padding:16px 8px;}.sidebar-logo span{display:none;}.nav-label{display:none;}.nav-item span{font-size:20px;width:auto;}.nav-item{justify-content:center;padding:10px;font-size:0;}
+  .main{margin-left:60px;}
+  .kpi-grid{grid-template-columns:repeat(2,1fr);}.cols{grid-template-columns:1fr;}
+  .fin-form{grid-template-columns:1fr 1fr;}
+  .fin-summary{grid-template-columns:1fr 1fr 1fr;}
+}
+@media(max-width:600px){
+  .sidebar{display:none;}.main{margin-left:0;}
+  .page{padding:20px 16px;}.topbar{padding:14px 16px;}
+  .kpi-grid{grid-template-columns:1fr 1fr;}.kpi-val{font-size:22px;}
+  .m-stats{grid-template-columns:repeat(2,1fr);}
+  .fin-form{grid-template-columns:1fr;}.fin-summary{grid-template-columns:1fr;}
+}
 </style>
 </head>
 <body>
 
-<!-- View Toggle -->
-<div class="view-toggle">
-  <button class="view-btn active" id="btnViewPatient" onclick="switchView('patient')">👤 Paciente</button>
-  <button class="view-btn" id="btnViewDash" onclick="switchView('dashboard')">📊 Nutricionista</button>
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sidebar-logo"><div class="sidebar-logo-icon">🥗</div><span>Nutri<em>Gestão</em></span></div>
+  <div class="nav-group">
+    <div class="nav-label">Menu</div>
+    <button class="nav-item active" onclick="go('dash')"><span>📊</span> Dashboard</button>
+    <button class="nav-item" onclick="go('patients')"><span>👥</span> Pacientes</button>
+    <button class="nav-item" onclick="go('finance')"><span>💰</span> Financeiro</button>
+    <button class="nav-item" onclick="go('meals')"><span>🍽️</span> Planos Alimentares</button>
+  </div>
+  <div class="nav-spacer"></div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PATIENT INTAKE FORM
-     ══════════════════════════════════════ -->
-<div class="patient-view active" id="patientView">
-  <div class="form-wrapper" id="formWrapper">
-    <div class="form-header">
-      <div class="form-logo">🥗</div>
-      <h1>Cadastro Nutricional</h1>
-      <p>Preencha seus dados para iniciar seu acompanhamento</p>
-    </div>
-
-    <div class="form-section">
-      <div class="form-section-title"><span>👤</span> Dados Pessoais</div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Nome completo</label>
-          <input type="text" id="pName" placeholder="Seu nome" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Idade</label>
-          <input type="number" id="pAge" placeholder="30" />
-        </div>
-        <div class="form-group">
-          <label>Sexo</label>
-          <select id="pSex">
-            <option value="">Selecione</option>
-            <option value="F">Feminino</option>
-            <option value="M">Masculino</option>
-            <option value="O">Outro</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>WhatsApp</label>
-          <input type="tel" id="pPhone" placeholder="(00) 00000-0000" oninput="fmtP(this)" />
-        </div>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="form-section-title"><span>📏</span> Medidas</div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Peso atual (kg)</label>
-          <input type="number" step="0.1" id="pWeight" placeholder="72.5" />
-        </div>
-        <div class="form-group">
-          <label>Altura (cm)</label>
-          <input type="number" id="pHeight" placeholder="170" />
-        </div>
-      </div>
-      <div class="form-row">
-        <div class="form-group">
-          <label>Circunf. abdominal (cm)</label>
-          <input type="number" step="0.1" id="pWaist" placeholder="85" />
-        </div>
-        <div class="form-group">
-          <label>% gordura (se souber)</label>
-          <input type="number" step="0.1" id="pFat" placeholder="25" />
-        </div>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="form-section-title"><span>🎯</span> Objetivo</div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Objetivo principal</label>
-          <select id="pGoal">
-            <option value="">Selecione</option>
-            <option value="emagrecer">Emagrecimento</option>
-            <option value="massa">Ganho de massa</option>
-            <option value="saude">Saúde e qualidade de vida</option>
-            <option value="esportivo">Performance esportiva</option>
-          </select>
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Peso desejado (kg)</label>
-          <input type="number" step="0.1" id="pGoalWeight" placeholder="65" />
-        </div>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="form-section-title"><span>🩺</span> Saúde</div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Restrições alimentares</label>
-          <input type="text" id="pRestrictions" placeholder="Lactose, glúten, nenhuma..." />
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Condições de saúde</label>
-          <input type="text" id="pConditions" placeholder="Diabetes, hipertensão, nenhuma..." />
-        </div>
-      </div>
-      <div class="form-row single">
-        <div class="form-group">
-          <label>Observações adicionais</label>
-          <textarea id="pNotes" placeholder="Algo que gostaria de compartilhar..."></textarea>
-        </div>
-      </div>
-    </div>
-
-    <button class="btn-submit" onclick="submitPatient()">Enviar meus dados</button>
-  </div>
-
-  <div class="form-success" id="formSuccess">
-    <div class="icon">✅</div>
-    <h2>Dados enviados com sucesso!</h2>
-    <p>Seu nutricionista receberá suas informações e entrará em contato pelo WhatsApp para agendar sua consulta.</p>
-  </div>
-</div>
-
-<!-- ══════════════════════════════════════
-     DASHBOARD
-     ══════════════════════════════════════ -->
-<div class="dashboard-view" id="dashView">
+<!-- ═══ MAIN ═══ -->
+<div class="main">
   <div class="topbar">
-    <div class="topbar-left">
-      <div class="topbar-logo">🥗</div>
-      <div class="topbar-title">Nutri<em>Gestão</em></div>
-    </div>
+    <h2 id="pageTitle">Dashboard</h2>
     <div class="topbar-right">
       <span class="topbar-date" id="topDate"></span>
       <div class="topbar-avatar">👩‍⚕️</div>
     </div>
   </div>
 
-  <div class="dash-main" id="dashMain"></div>
+  <!-- DASHBOARD PAGE -->
+  <div class="page active" id="pg-dash"></div>
+
+  <!-- PATIENTS PAGE -->
+  <div class="page" id="pg-patients"></div>
+
+  <!-- FINANCE PAGE -->
+  <div class="page" id="pg-finance"></div>
+
+  <!-- MEALS PAGE -->
+  <div class="page" id="pg-meals"></div>
 </div>
 
-<!-- ══════════════════════════════════════
-     DETAIL MODAL
-     ══════════════════════════════════════ -->
-<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
-  <div class="modal-content" id="modalContent"></div>
+<!-- ═══ MODAL ═══ -->
+<div class="modal-ov" id="modalOv" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalC"></div>
 </div>
 
 <script>
-// ═══ DATA STORE ═══
-function getPatients() {
-  try { return JSON.parse(localStorage.getItem('nutri_patients') || '[]'); } catch { return []; }
-}
-function savePatients(arr) {
-  localStorage.setItem('nutri_patients', JSON.stringify(arr));
-}
+// ═══ DATA ═══
+const P=()=>{try{return JSON.parse(localStorage.getItem('nutri_patients')||'[]')}catch{return[]}};
+const SP=a=>localStorage.setItem('nutri_patients',JSON.stringify(a));
+const COLORS=['#2D9D78','#4A8FD6','#E5A832','#E06B5E','#8B7EC8','#D47FA6','#5BBDB9','#C4704B'];
+const GL={emagrecer:'Emagrecer',massa:'Ganho de massa',saude:'Saúde',esportivo:'Esportivo'};
+const GC={emagrecer:'g-em',massa:'g-ma',saude:'g-sa',esportivo:'g-es'};
+const SL={new:'Novo',active:'Ativo',attention:'Atenção'};
+const SC={new:'st-new',active:'st-active',attention:'st-attention'};
+const ini=n=>n.split(' ').map(w=>w[0]).join('').slice(0,2);
+const fmt$=v=>'R$ '+v.toFixed(2).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.');
+const fmtD=d=>{const[y,m,dd]=d.split('-');return dd+'/'+m+'/'+y;};
 
-// ═══ VIEW TOGGLE ═══
-function switchView(v) {
-  document.getElementById('patientView').classList.toggle('active', v === 'patient');
-  document.getElementById('dashView').classList.toggle('active', v === 'dashboard');
-  document.getElementById('btnViewPatient').classList.toggle('active', v === 'patient');
-  document.getElementById('btnViewDash').classList.toggle('active', v === 'dashboard');
-  if (v === 'dashboard') renderDashboard();
-}
+document.getElementById('topDate').textContent=new Date().toLocaleDateString('pt-BR',{weekday:'long',day:'numeric',month:'long'});
 
-// ═══ PATIENT FORM ═══
-function fmtP(el) {
-  let v = el.value.replace(/\D/g,'');
-  if (v.length > 11) v = v.slice(0,11);
-  if (v.length > 7) v = '(' + v.slice(0,2) + ') ' + v.slice(2,7) + '-' + v.slice(7);
-  else if (v.length > 2) v = '(' + v.slice(0,2) + ') ' + v.slice(2);
-  el.value = v;
-}
-
-function submitPatient() {
-  const name = document.getElementById('pName').value.trim();
-  const weight = parseFloat(document.getElementById('pWeight').value);
-  const height = parseFloat(document.getElementById('pHeight').value);
-  const goal = document.getElementById('pGoal').value;
-
-  if (!name || !weight || !height || !goal) {
-    alert('Preencha pelo menos: nome, peso, altura e objetivo.');
-    return;
-  }
-
-  const bmi = (weight / ((height/100) ** 2)).toFixed(1);
-
-  const patient = {
-    id: Date.now().toString(36),
-    name,
-    age: parseInt(document.getElementById('pAge').value) || null,
-    sex: document.getElementById('pSex').value,
-    phone: document.getElementById('pPhone').value,
-    goal,
-    goalWeight: parseFloat(document.getElementById('pGoalWeight').value) || null,
-    restrictions: document.getElementById('pRestrictions').value,
-    conditions: document.getElementById('pConditions').value,
-    notes: document.getElementById('pNotes').value,
-    createdAt: new Date().toISOString(),
-    status: 'new',
-    records: [{
-      date: new Date().toISOString().slice(0,10),
-      weight,
-      height,
-      bmi: parseFloat(bmi),
-      waist: parseFloat(document.getElementById('pWaist').value) || null,
-      fat: parseFloat(document.getElementById('pFat').value) || null
-    }]
-  };
-
-  const patients = getPatients();
-  patients.push(patient);
-  savePatients(patients);
-
-  document.getElementById('formWrapper').style.display = 'none';
-  document.getElementById('formSuccess').classList.add('show');
+// ═══ NAVIGATION ═══
+const titles={dash:'Dashboard',patients:'Pacientes',finance:'Financeiro',meals:'Planos Alimentares'};
+function go(pg){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('pg-'+pg).classList.add('active');
+  document.querySelectorAll('.nav-item')[{dash:0,patients:1,finance:2,meals:3}[pg]].classList.add('active');
+  document.getElementById('pageTitle').textContent=titles[pg];
+  if(pg==='dash')renderDash();
+  if(pg==='patients')renderPatients();
+  if(pg==='finance')renderFinance();
+  if(pg==='meals')renderMeals();
 }
 
 // ═══ DEMO DATA ═══
-function loadDemo() {
-  const demo = [
-    { id:'d1', name:'Ana Silva', age:28, sex:'F', phone:'(11) 99876-5432', goal:'emagrecer', goalWeight:60, restrictions:'Lactose', conditions:'Nenhuma', notes:'', createdAt:'2026-01-15', status:'active',
-      records: [
-        { date:'2026-01-15', weight:78, height:165, bmi:28.7, waist:92, fat:32 },
-        { date:'2026-02-01', weight:76.2, height:165, bmi:28.0, waist:90, fat:31 },
-        { date:'2026-02-15', weight:74.8, height:165, bmi:27.5, waist:88, fat:30 },
-        { date:'2026-03-01', weight:73.1, height:165, bmi:26.8, waist:86, fat:28.5 },
-        { date:'2026-03-15', weight:71.5, height:165, bmi:26.3, waist:84, fat:27 }
-      ]},
-    { id:'d2', name:'Carlos Mendes', age:35, sex:'M', phone:'(11) 98765-4321', goal:'massa', goalWeight:85, restrictions:'Nenhuma', conditions:'Nenhuma', notes:'Treina musculação 5x/semana', createdAt:'2026-02-01', status:'active',
-      records: [
-        { date:'2026-02-01', weight:72, height:178, bmi:22.7, waist:80, fat:18 },
-        { date:'2026-02-15', weight:73.2, height:178, bmi:23.1, waist:80, fat:17.5 },
-        { date:'2026-03-01', weight:74.5, height:178, bmi:23.5, waist:81, fat:17 },
-        { date:'2026-03-15', weight:75.8, height:178, bmi:23.9, waist:81, fat:16.5 }
-      ]},
-    { id:'d3', name:'Mariana Oliveira', age:42, sex:'F', phone:'(21) 97654-3210', goal:'saude', goalWeight:68, restrictions:'Glúten', conditions:'Hipotireoidismo', notes:'Quer melhorar exames', createdAt:'2026-02-10', status:'attention',
-      records: [
-        { date:'2026-02-10', weight:82, height:162, bmi:31.2, waist:96, fat:36 },
-        { date:'2026-03-01', weight:81.5, height:162, bmi:31.1, waist:95.5, fat:35.8 },
-        { date:'2026-03-15', weight:81.8, height:162, bmi:31.2, waist:96, fat:36 }
-      ]},
-    { id:'d4', name:'Pedro Santos', age:24, sex:'M', phone:'(11) 96543-2109', goal:'esportivo', goalWeight:75, restrictions:'Nenhuma', conditions:'Nenhuma', notes:'Corredor amador', createdAt:'2026-03-01', status:'active',
-      records: [
-        { date:'2026-03-01', weight:70, height:175, bmi:22.9, waist:78, fat:15 },
-        { date:'2026-03-15', weight:69.5, height:175, bmi:22.7, waist:77, fat:14.5 }
-      ]},
-    { id:'d5', name:'Lúcia Ferreira', age:55, sex:'F', phone:'(31) 95432-1098', goal:'saude', goalWeight:70, restrictions:'Lactose, frutos do mar', conditions:'Diabetes tipo 2, hipertensão', notes:'Medicamento: metformina', createdAt:'2026-03-10', status:'active',
-      records: [
-        { date:'2026-03-10', weight:88, height:160, bmi:34.4, waist:102, fat:40 },
-        { date:'2026-03-24', weight:86.5, height:160, bmi:33.8, waist:100, fat:39 }
-      ]}
+function loadDemo(){
+  const demo=[
+    {id:'d1',name:'Ana Silva',age:28,sex:'F',phone:'(11) 99876-5432',goal:'emagrecer',goalWeight:60,restrictions:'Lactose',conditions:'Nenhuma',notes:'',createdAt:'2026-01-15',status:'active',
+      records:[{date:'2026-01-15',weight:78,height:165,bmi:28.7,waist:92,fat:32},{date:'2026-02-01',weight:76.2,height:165,bmi:28.0,waist:90,fat:31},{date:'2026-02-15',weight:74.8,height:165,bmi:27.5,waist:88,fat:30},{date:'2026-03-01',weight:73.1,height:165,bmi:26.8,waist:86,fat:28.5},{date:'2026-03-15',weight:71.5,height:165,bmi:26.3,waist:84,fat:27}],
+      payments:[{date:'2026-01-15',amount:350,desc:'Consulta inicial',status:'paid'},{date:'2026-02-01',amount:250,desc:'Retorno',status:'paid'},{date:'2026-03-01',amount:250,desc:'Retorno',status:'paid'},{date:'2026-03-15',amount:250,desc:'Retorno',status:'pending'}],
+      mealPlans:[]},
+    {id:'d2',name:'Carlos Mendes',age:35,sex:'M',phone:'(11) 98765-4321',goal:'massa',goalWeight:85,restrictions:'Nenhuma',conditions:'Nenhuma',notes:'Treina 5x/semana',createdAt:'2026-02-01',status:'active',
+      records:[{date:'2026-02-01',weight:72,height:178,bmi:22.7,waist:80,fat:18},{date:'2026-02-15',weight:73.2,height:178,bmi:23.1,waist:80,fat:17.5},{date:'2026-03-01',weight:74.5,height:178,bmi:23.5,waist:81,fat:17},{date:'2026-03-15',weight:75.8,height:178,bmi:23.9,waist:81,fat:16.5}],
+      payments:[{date:'2026-02-01',amount:350,desc:'Consulta inicial',status:'paid'},{date:'2026-03-01',amount:250,desc:'Retorno',status:'paid'}],
+      mealPlans:[]},
+    {id:'d3',name:'Mariana Oliveira',age:42,sex:'F',phone:'(21) 97654-3210',goal:'saude',goalWeight:68,restrictions:'Glúten',conditions:'Hipotireoidismo',notes:'Melhorar exames',createdAt:'2026-02-10',status:'attention',
+      records:[{date:'2026-02-10',weight:82,height:162,bmi:31.2,waist:96,fat:36},{date:'2026-03-01',weight:81.5,height:162,bmi:31.1,waist:95.5,fat:35.8},{date:'2026-03-15',weight:81.8,height:162,bmi:31.2,waist:96,fat:36}],
+      payments:[{date:'2026-02-10',amount:350,desc:'Consulta inicial',status:'paid'},{date:'2026-03-01',amount:250,desc:'Retorno',status:'paid'},{date:'2026-03-15',amount:250,desc:'Retorno',status:'late'}],
+      mealPlans:[]},
+    {id:'d4',name:'Pedro Santos',age:24,sex:'M',phone:'(11) 96543-2109',goal:'esportivo',goalWeight:75,restrictions:'Nenhuma',conditions:'Nenhuma',notes:'Corredor',createdAt:'2026-03-01',status:'active',
+      records:[{date:'2026-03-01',weight:70,height:175,bmi:22.9,waist:78,fat:15},{date:'2026-03-15',weight:69.5,height:175,bmi:22.7,waist:77,fat:14.5}],
+      payments:[{date:'2026-03-01',amount:350,desc:'Consulta inicial',status:'paid'}],
+      mealPlans:[]},
+    {id:'d5',name:'Lúcia Ferreira',age:55,sex:'F',phone:'(31) 95432-1098',goal:'saude',goalWeight:70,restrictions:'Lactose, frutos do mar',conditions:'Diabetes tipo 2',notes:'Metformina',createdAt:'2026-03-10',status:'active',
+      records:[{date:'2026-03-10',weight:88,height:160,bmi:34.4,waist:102,fat:40},{date:'2026-03-24',weight:86.5,height:160,bmi:33.8,waist:100,fat:39}],
+      payments:[{date:'2026-03-10',amount:400,desc:'Consulta inicial + exames',status:'paid'},{date:'2026-03-24',amount:250,desc:'Retorno',status:'pending'}],
+      mealPlans:[]}
   ];
-  savePatients(demo);
-  renderDashboard();
+  SP(demo);go('dash');
 }
 
-// ═══ DASHBOARD ═══
-const COLORS = ['#2D9D78','#4A8FD6','#E5A832','#E06B5E','#8B7EC8','#D47FA6','#5BBDB9','#C4704B'];
-const GOAL_LABELS = { emagrecer:'Emagrecer', massa:'Ganho de massa', saude:'Saúde', esportivo:'Esportivo' };
-const GOAL_CLASSES = { emagrecer:'goal-emagrecer', massa:'goal-massa', saude:'goal-saude', esportivo:'goal-esportivo' };
-const STATUS_LABELS = { new:'Novo', active:'Ativo', attention:'Atenção' };
-const STATUS_CLASSES = { new:'status-new', active:'status-active', attention:'status-attention' };
+// ═══════════════════════════════════
+// DASHBOARD
+// ═══════════════════════════════════
+function renderDash(){
+  const pts=P(),el=document.getElementById('pg-dash');
+  if(!pts.length){el.innerHTML=`<div class="empty"><div class="ico">📋</div><h3>Nenhum paciente</h3><p>Quando pacientes preencherem o formulário, os dados aparecem aqui.</p><button class="btn-demo" onclick="loadDemo()">Carregar demonstração</button></div>`;return;}
 
-function renderDashboard() {
-  const patients = getPatients();
-  const main = document.getElementById('dashMain');
-  document.getElementById('topDate').textContent = new Date().toLocaleDateString('pt-BR', { weekday:'long', day:'numeric', month:'long' });
+  const total=pts.length,nw=pts.filter(p=>p.status==='new').length,att=pts.filter(p=>p.status==='attention').length;
+  const allPay=pts.flatMap(p=>(p.payments||[]));
+  const revenue=allPay.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amount,0);
+  const recent=[...pts].sort((a,b)=>new Date(b.createdAt)-new Date(a.createdAt)).slice(0,5);
 
-  if (patients.length === 0) {
-    main.innerHTML = `
-      <div class="dash-greeting">
-        <h2>Bom dia! 👋</h2>
-        <p>Seu painel de gestão de pacientes</p>
-      </div>
-      <div class="empty-state">
-        <div class="icon">📋</div>
-        <h3>Nenhum paciente cadastrado</h3>
-        <p>Quando seus pacientes preencherem o formulário, os dados aparecerão aqui automaticamente.</p>
-        <button class="btn-add-demo" onclick="loadDemo()">Carregar dados de demonstração</button>
-      </div>
-    `;
-    return;
-  }
-
-  // KPIs
-  const total = patients.length;
-  const newCount = patients.filter(p => p.status === 'new').length;
-  const attentionCount = patients.filter(p => p.status === 'attention').length;
-  const avgLoss = patients.filter(p => p.records.length > 1).map(p => {
-    const first = p.records[0].weight;
-    const last = p.records[p.records.length-1].weight;
-    return first - last;
-  });
-  const avgChange = avgLoss.length ? (avgLoss.reduce((a,b) => a+b, 0) / avgLoss.length).toFixed(1) : '0';
-
-  // recent patients (last 5)
-  const recent = [...patients].sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0,5);
-
-  main.innerHTML = `
-    <div class="dash-greeting">
-      <h2>Bom dia! 👋</h2>
-      <p>Você tem ${total} paciente${total > 1 ? 's' : ''} cadastrado${total > 1 ? 's' : ''}</p>
-    </div>
-
+  el.innerHTML=`
     <div class="kpi-grid">
-      <div class="kpi-card">
-        <div class="kpi-icon green">👥</div>
-        <div class="kpi-value">${total}</div>
-        <div class="kpi-label">Total de pacientes</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon blue">🆕</div>
-        <div class="kpi-value">${newCount}</div>
-        <div class="kpi-label">Novos cadastros</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon coral">⚠️</div>
-        <div class="kpi-value">${attentionCount}</div>
-        <div class="kpi-label">Precisam de atenção</div>
-      </div>
-      <div class="kpi-card">
-        <div class="kpi-icon amber">📉</div>
-        <div class="kpi-value">${avgChange}kg</div>
-        <div class="kpi-label">Perda média</div>
-      </div>
+      <div class="kpi"><div class="kpi-icon bg-g">👥</div><div class="kpi-val">${total}</div><div class="kpi-lbl">Pacientes</div></div>
+      <div class="kpi"><div class="kpi-icon bg-b">🆕</div><div class="kpi-val">${nw}</div><div class="kpi-lbl">Novos</div></div>
+      <div class="kpi"><div class="kpi-icon bg-c">⚠️</div><div class="kpi-val">${att}</div><div class="kpi-lbl">Atenção</div></div>
+      <div class="kpi"><div class="kpi-icon bg-a">💰</div><div class="kpi-val">${fmt$(revenue)}</div><div class="kpi-lbl">Faturamento</div></div>
     </div>
+    <div class="cols">
+      <div class="card"><div class="card-h"><div class="card-t">Evolução de peso</div><div class="badge">3 meses</div></div><div class="card-b"><div class="chart-c"><canvas id="chDash"></canvas></div></div></div>
+      <div class="card"><div class="card-h"><div class="card-t">Pacientes recentes</div></div><div class="card-b"><ul class="pat-list">${recent.map((p,i)=>{const l=p.records[p.records.length-1];return`<li class="pat-item" onclick="openPatient('${p.id}')"><div class="pat-av" style="background:${COLORS[i%8]}">${ini(p.name)}</div><div class="pat-info"><div class="pat-name">${p.name}</div><div class="pat-meta">${l.weight}kg · IMC ${l.bmi} · ${GL[p.goal]||p.goal}</div></div><span class="p-status ${SC[p.status]}">${SL[p.status]}</span></li>`;}).join('')}</ul></div></div>
+    </div>`;
 
-    <div class="dash-columns">
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <div class="dash-card-title">Evolução de peso</div>
-          <div class="dash-card-badge">Últimos 3 meses</div>
-        </div>
-        <div class="dash-card-body">
-          <div class="chart-container"><canvas id="weightChart"></canvas></div>
-        </div>
-      </div>
-      <div class="dash-card">
-        <div class="dash-card-header">
-          <div class="dash-card-title">Pacientes recentes</div>
-        </div>
-        <div class="dash-card-body">
-          <ul class="patient-list">
-            ${recent.map((p, i) => {
-              const initials = p.name.split(' ').map(w => w[0]).join('').slice(0,2);
-              const lastRec = p.records[p.records.length-1];
-              return `
-                <li class="patient-item" onclick="openPatient('${p.id}')">
-                  <div class="patient-avatar" style="background:${COLORS[i % COLORS.length]}">${initials}</div>
-                  <div class="patient-info">
-                    <div class="patient-name">${p.name}</div>
-                    <div class="patient-meta">${lastRec.weight}kg · IMC ${lastRec.bmi} · ${GOAL_LABELS[p.goal] || p.goal}</div>
-                  </div>
-                  <span class="patient-status ${STATUS_CLASSES[p.status]}">${STATUS_LABELS[p.status]}</span>
-                </li>
-              `;
-            }).join('')}
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <div class="dash-full-card">
-      <div class="dash-card-header" style="padding-bottom:0">
-        <div class="dash-card-title">Todos os pacientes</div>
-        <div class="dash-card-badge">${total} pacientes</div>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Paciente</th>
-              <th>Idade</th>
-              <th>Peso atual</th>
-              <th>IMC</th>
-              <th>Variação</th>
-              <th>Objetivo</th>
-              <th>Meta</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            ${patients.map((p, i) => {
-              const initials = p.name.split(' ').map(w => w[0]).join('').slice(0,2);
-              const last = p.records[p.records.length-1];
-              const first = p.records[0];
-              const diff = (last.weight - first.weight).toFixed(1);
-              const diffClass = diff < 0 ? 'change-down' : diff > 0 ? 'change-up' : 'change-none';
-              const arrow = diff < 0 ? '↓' : diff > 0 ? '↑' : '→';
-              return `
-                <tr onclick="openPatient('${p.id}')" style="cursor:pointer">
-                  <td><div class="td-name"><div class="td-avatar" style="background:${COLORS[i % COLORS.length]}">${initials}</div>${p.name}</div></td>
-                  <td>${p.age || '—'}</td>
-                  <td><strong>${last.weight}kg</strong></td>
-                  <td>${last.bmi}</td>
-                  <td><span class="td-change ${diffClass}">${arrow} ${Math.abs(diff)}kg</span></td>
-                  <td><span class="td-goal ${GOAL_CLASSES[p.goal]}">${GOAL_LABELS[p.goal] || p.goal}</span></td>
-                  <td>${p.goalWeight ? p.goalWeight + 'kg' : '—'}</td>
-                  <td><span class="patient-status ${STATUS_CLASSES[p.status]}">${STATUS_LABELS[p.status]}</span></td>
-                </tr>
-              `;
-            }).join('')}
-          </tbody>
-        </table>
-      </div>
-    </div>
-  `;
-
-  // Weight evolution chart
-  const activePatients = patients.filter(p => p.records.length > 1).slice(0, 5);
-  if (activePatients.length > 0) {
-    const allDates = [...new Set(activePatients.flatMap(p => p.records.map(r => r.date)))].sort();
-    const datasets = activePatients.map((p, i) => ({
-      label: p.name.split(' ')[0],
-      data: allDates.map(d => { const r = p.records.find(rec => rec.date === d); return r ? r.weight : null; }),
-      borderColor: COLORS[i % COLORS.length],
-      backgroundColor: COLORS[i % COLORS.length] + '20',
-      borderWidth: 2.5,
-      pointRadius: 4,
-      pointHoverRadius: 6,
-      tension: 0.3,
-      spanGaps: true,
-      fill: false
-    }));
-
-    new Chart(document.getElementById('weightChart'), {
-      type: 'line',
-      data: { labels: allDates.map(d => { const [,m,day] = d.split('-'); return day + '/' + m; }), datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 11 }, usePointStyle: true, pointStyle: 'circle', padding: 16 } } },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#9196A1' } },
-          y: { grid: { color: '#F0F1F4' }, ticks: { font: { family: 'Plus Jakarta Sans', size: 11 }, color: '#9196A1', callback: v => v + 'kg' } }
-        },
-        interaction: { intersect: false, mode: 'index' }
-      }
-    });
+  // chart
+  const ap=pts.filter(p=>p.records.length>1).slice(0,5);
+  if(ap.length){
+    const dates=[...new Set(ap.flatMap(p=>p.records.map(r=>r.date)))].sort();
+    new Chart(document.getElementById('chDash'),{type:'line',data:{labels:dates.map(d=>{const[,m,dd]=d.split('-');return dd+'/'+m;}),datasets:ap.map((p,i)=>({label:p.name.split(' ')[0],data:dates.map(d=>{const r=p.records.find(x=>x.date===d);return r?r.weight:null;}),borderColor:COLORS[i%8],borderWidth:2.5,pointRadius:4,tension:0.3,spanGaps:true,fill:false}))},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Plus Jakarta Sans',size:11},usePointStyle:true,padding:16}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#9196A1'}},y:{grid:{color:'#F0F1F4'},ticks:{font:{size:11},color:'#9196A1',callback:v=>v+'kg'}}},interaction:{intersect:false,mode:'index'}}});
   }
 }
 
-// ═══ PATIENT DETAIL MODAL ═══
-let currentPatientId = null;
+// ═══════════════════════════════════
+// PATIENTS
+// ═══════════════════════════════════
+function renderPatients(){
+  const pts=P(),el=document.getElementById('pg-patients');
+  if(!pts.length){el.innerHTML=`<div class="empty"><div class="ico">👥</div><h3>Nenhum paciente</h3><p>Pacientes aparecerão aqui ao preencher o formulário.</p><button class="btn-demo" onclick="loadDemo()">Carregar demonstração</button></div>`;return;}
+  el.innerHTML=`
+    <div class="card"><div class="card-h"><div class="card-t">Todos os pacientes</div><div class="badge">${pts.length}</div></div>
+    <div class="tbl-wrap"><table><thead><tr><th>Paciente</th><th>Idade</th><th>Peso</th><th>IMC</th><th>Variação</th><th>Objetivo</th><th>Meta</th><th>Status</th></tr></thead><tbody>
+    ${pts.map((p,i)=>{const l=p.records[p.records.length-1],f=p.records[0],d=(l.weight-f.weight).toFixed(1),cl=d<0?'ch-dn':d>0?'ch-up':'ch-eq',ar=d<0?'↓':d>0?'↑':'→';
+      return`<tr onclick="openPatient('${p.id}')" style="cursor:pointer"><td><div class="td-name"><div class="td-av" style="background:${COLORS[i%8]}">${ini(p.name)}</div>${p.name}</div></td><td>${p.age||'—'}</td><td><strong>${l.weight}kg</strong></td><td>${l.bmi}</td><td><span class="td-ch ${cl}">${ar} ${Math.abs(d)}kg</span></td><td><span class="td-goal ${GC[p.goal]}">${GL[p.goal]||p.goal}</span></td><td>${p.goalWeight?p.goalWeight+'kg':'—'}</td><td><span class="p-status ${SC[p.status]}">${SL[p.status]}</span></td></tr>`;}).join('')}
+    </tbody></table></div></div>`;
+}
 
-function openPatient(id) {
-  currentPatientId = id;
-  const patients = getPatients();
-  const p = patients.find(x => x.id === id);
-  if (!p) return;
+// ═══════════════════════════════════
+// PATIENT MODAL
+// ═══════════════════════════════════
+function openPatient(id){
+  const pts=P(),p=pts.find(x=>x.id===id);if(!p)return;
+  const l=p.records[p.records.length-1],f=p.records[0],diff=(l.weight-f.weight).toFixed(1);
+  const hrows=[...p.records].reverse().map((r,i,a)=>{const prev=a[i+1];let ds='—';if(prev){const d=(r.weight-prev.weight).toFixed(1);const c=d<0?'ch-dn':d>0?'ch-up':'ch-eq';const ar=d<0?'↓':d>0?'↑':'→';ds=`<span class="td-ch ${c}">${ar} ${Math.abs(d)}kg</span>`;}return`<tr><td>${fmtD(r.date)}</td><td><strong>${r.weight}kg</strong></td><td>${r.bmi}</td><td>${r.waist?r.waist+'cm':'—'}</td><td>${r.fat?r.fat+'%':'—'}</td><td>${ds}</td></tr>`;}).join('');
 
-  const last = p.records[p.records.length-1];
-  const first = p.records[0];
-  const diff = (last.weight - first.weight).toFixed(1);
-
-  // Build history rows (most recent first)
-  const historyRows = [...p.records].reverse().map((r, i, arr) => {
-    const prev = arr[i + 1]; // previous chronologically (next in reversed array)
-    let diffStr = '—';
-    if (prev) {
-      const d = (r.weight - prev.weight).toFixed(1);
-      const cls = d < 0 ? 'change-down' : d > 0 ? 'change-up' : 'change-none';
-      const arrow = d < 0 ? '↓' : d > 0 ? '↑' : '→';
-      diffStr = `<span class="history-diff ${cls}">${arrow} ${Math.abs(d)}kg</span>`;
-    }
-    const [y, m, d] = r.date.split('-');
-    return `
-      <tr>
-        <td>${d}/${m}/${y}</td>
-        <td><strong>${r.weight}kg</strong></td>
-        <td>${r.bmi}</td>
-        <td>${r.waist ? r.waist + 'cm' : '—'}</td>
-        <td>${r.fat ? r.fat + '%' : '—'}</td>
-        <td>${diffStr}</td>
-      </tr>
-    `;
-  }).join('');
-
-  document.getElementById('modalContent').innerHTML = `
-    <div class="modal-header">
-      <h3>${p.name}</h3>
-      <button class="modal-close" onclick="closeModal()">✕</button>
-    </div>
-    <div class="modal-body">
-
-      <!-- Status selector -->
-      <div class="modal-status-row">
-        <span class="modal-status-label">Status:</span>
-        <button class="status-btn sb-new ${p.status==='new'?'selected':''}" onclick="changeStatus('${p.id}','new')">🆕 Novo</button>
-        <button class="status-btn sb-active ${p.status==='active'?'selected':''}" onclick="changeStatus('${p.id}','active')">✅ Ativo</button>
-        <button class="status-btn sb-attention ${p.status==='attention'?'selected':''}" onclick="changeStatus('${p.id}','attention')">⚠️ Atenção</button>
+  document.getElementById('modalC').innerHTML=`
+    <div class="modal-h"><h3>${p.name}</h3><button class="modal-x" onclick="closeModal()">✕</button></div>
+    <div class="modal-bd">
+      <div class="status-row"><span>Status:</span>
+        <button class="sb sb-n ${p.status==='new'?'sel':''}" onclick="chSt('${id}','new',this)">🆕 Novo</button>
+        <button class="sb sb-a ${p.status==='active'?'sel':''}" onclick="chSt('${id}','active',this)">✅ Ativo</button>
+        <button class="sb sb-t ${p.status==='attention'?'sel':''}" onclick="chSt('${id}','attention',this)">⚠️ Atenção</button>
       </div>
-
-      <!-- KPI stats -->
-      <div class="modal-stats">
-        <div class="modal-stat"><div class="val">${last.weight}kg</div><div class="lbl">Peso atual</div></div>
-        <div class="modal-stat"><div class="val">${last.bmi}</div><div class="lbl">IMC</div></div>
-        <div class="modal-stat"><div class="val">${diff > 0 ? '+' : ''}${diff}kg</div><div class="lbl">Variação total</div></div>
-        ${last.waist ? `<div class="modal-stat"><div class="val">${last.waist}cm</div><div class="lbl">Cintura</div></div>` : ''}
-        ${last.fat ? `<div class="modal-stat"><div class="val">${last.fat}%</div><div class="lbl">Gordura</div></div>` : ''}
-        ${p.goalWeight ? `<div class="modal-stat"><div class="val">${p.goalWeight}kg</div><div class="lbl">Meta</div></div>` : ''}
+      <div class="m-stats">
+        <div class="m-stat"><div class="v">${l.weight}kg</div><div class="l">Peso atual</div></div>
+        <div class="m-stat"><div class="v">${l.bmi}</div><div class="l">IMC</div></div>
+        <div class="m-stat"><div class="v">${diff>0?'+':''}${diff}kg</div><div class="l">Variação</div></div>
+        ${l.waist?`<div class="m-stat"><div class="v">${l.waist}cm</div><div class="l">Cintura</div></div>`:''}
+        ${l.fat?`<div class="m-stat"><div class="v">${l.fat}%</div><div class="l">Gordura</div></div>`:''}
+        ${p.goalWeight?`<div class="m-stat"><div class="v">${p.goalWeight}kg</div><div class="l">Meta</div></div>`:''}
       </div>
-
-      <!-- New measurement button + form -->
-      <button class="new-measure-toggle" onclick="toggleMeasureForm()">
-        ➕ Registrar nova medição
-      </button>
-
-      <div class="new-measure-form" id="nmForm">
+      <button class="nm-toggle" onclick="document.getElementById('nmF').classList.toggle('open')">➕ Registrar nova medição</button>
+      <div class="nm-form" id="nmF">
         <h4>📏 Nova medição</h4>
-        <div class="nm-row">
-          <div class="nm-group">
-            <label>Data</label>
-            <input type="date" id="nmDate" value="${new Date().toISOString().slice(0,10)}" />
-          </div>
-          <div class="nm-group">
-            <label>Peso (kg) *</label>
-            <input type="number" step="0.1" id="nmWeight" placeholder="${last.weight}" />
-          </div>
-        </div>
-        <div class="nm-row">
-          <div class="nm-group">
-            <label>Circunf. abdominal (cm)</label>
-            <input type="number" step="0.1" id="nmWaist" placeholder="${last.waist || ''}" />
-          </div>
-          <div class="nm-group">
-            <label>% Gordura</label>
-            <input type="number" step="0.1" id="nmFat" placeholder="${last.fat || ''}" />
-          </div>
-        </div>
-        <div class="nm-row" style="grid-template-columns:1fr">
-          <div class="nm-group">
-            <label>Observações da consulta</label>
-            <textarea id="nmObs" placeholder="Anotações sobre esta consulta..."></textarea>
-          </div>
-        </div>
-        <div class="nm-actions">
-          <button class="btn-nm-save" onclick="saveMeasurement('${p.id}')">💾 Salvar medição</button>
-          <button class="btn-nm-cancel" onclick="toggleMeasureForm()">Cancelar</button>
-        </div>
+        <div class="nm-r"><div class="nm-g"><label>Data</label><input type="date" id="nmD" value="${new Date().toISOString().slice(0,10)}"/></div><div class="nm-g"><label>Peso (kg)*</label><input type="number" step="0.1" id="nmW" placeholder="${l.weight}"/></div></div>
+        <div class="nm-r"><div class="nm-g"><label>Cintura (cm)</label><input type="number" step="0.1" id="nmC" placeholder="${l.waist||''}"/></div><div class="nm-g"><label>% Gordura</label><input type="number" step="0.1" id="nmG" placeholder="${l.fat||''}"/></div></div>
+        <div class="nm-r" style="grid-template-columns:1fr"><div class="nm-g"><label>Observações</label><textarea id="nmO" placeholder="Anotações..."></textarea></div></div>
+        <div class="nm-acts"><button class="btn-nm" onclick="saveM('${id}')">💾 Salvar</button><button class="btn-nmc" onclick="document.getElementById('nmF').classList.remove('open')">Cancelar</button></div>
       </div>
+      <div class="m-chart"><canvas id="mCh"></canvas></div>
+      <div class="hist"><h4>📅 Histórico (${p.records.length})</h4><div style="overflow-x:auto"><table class="htbl"><thead><tr><th>Data</th><th>Peso</th><th>IMC</th><th>Cintura</th><th>Gordura</th><th>Variação</th></tr></thead><tbody>${hrows}</tbody></table></div></div>
+      <div class="m-notes"><h4>📋 Informações</h4><p><strong>Objetivo:</strong> ${GL[p.goal]||p.goal}<br><strong>Idade:</strong> ${p.age||'—'} · <strong>Sexo:</strong> ${p.sex||'—'}<br>${p.restrictions?'<strong>Restrições:</strong> '+p.restrictions+'<br>':''}${p.conditions?'<strong>Condições:</strong> '+p.conditions+'<br>':''}${p.notes?'<strong>Obs:</strong> '+p.notes+'<br>':''}<strong>WhatsApp:</strong> ${p.phone||'—'}</p></div>
+    </div>`;
+  document.getElementById('modalOv').classList.add('open');
 
-      <!-- Evolution chart -->
-      <div class="modal-chart"><canvas id="modalChart"></canvas></div>
+  setTimeout(()=>{
+    const labels=p.records.map(r=>{const[,m,d]=r.date.split('-');return d+'/'+m;});
+    const ds=[{label:'Peso',data:p.records.map(r=>r.weight),borderColor:'#2D9D78',backgroundColor:'#2D9D7820',borderWidth:2.5,pointRadius:5,tension:0.3,fill:true}];
+    if(p.records.some(r=>r.waist))ds.push({label:'Cintura',data:p.records.map(r=>r.waist),borderColor:'#E5A832',borderWidth:2,pointRadius:4,tension:0.3,borderDash:[5,3]});
+    if(p.records.some(r=>r.fat))ds.push({label:'Gordura',data:p.records.map(r=>r.fat),borderColor:'#E06B5E',borderWidth:2,pointRadius:4,tension:0.3,borderDash:[3,3]});
+    if(p.goalWeight)ds.push({label:'Meta',data:p.records.map(()=>p.goalWeight),borderColor:'#4A8FD6',borderWidth:1.5,pointRadius:0,borderDash:[8,4],fill:false});
+    new Chart(document.getElementById('mCh'),{type:'line',data:{labels,datasets:ds},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{font:{family:'Plus Jakarta Sans',size:11},usePointStyle:true,padding:12}}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#9196A1'}},y:{grid:{color:'#F0F1F4'},ticks:{font:{size:11},color:'#9196A1'}}}}});
+  },100);
+}
 
-      <!-- History table -->
-      <div class="modal-history">
-        <h4>📅 Histórico de medições (${p.records.length})</h4>
-        <div style="overflow-x:auto;">
-          <table class="history-table">
-            <thead>
-              <tr><th>Data</th><th>Peso</th><th>IMC</th><th>Cintura</th><th>Gordura</th><th>Variação</th></tr>
-            </thead>
-            <tbody>${historyRows}</tbody>
-          </table>
-        </div>
+function saveM(id){
+  const w=parseFloat(document.getElementById('nmW').value);if(!w){alert('Informe o peso.');return;}
+  const pts=P(),p=pts.find(x=>x.id===id);if(!p)return;
+  const h=p.records[0].height,bmi=(w/((h/100)**2)).toFixed(1);
+  p.records.push({date:document.getElementById('nmD').value||new Date().toISOString().slice(0,10),weight:w,height:h,bmi:parseFloat(bmi),waist:parseFloat(document.getElementById('nmC').value)||null,fat:parseFloat(document.getElementById('nmG').value)||null});
+  p.records.sort((a,b)=>a.date.localeCompare(b.date));
+  if(p.status==='new')p.status='active';
+  SP(pts);openPatient(id);
+}
+
+function chSt(id,st,btn){const pts=P(),p=pts.find(x=>x.id===id);if(!p)return;p.status=st;SP(pts);document.querySelectorAll('.sb').forEach(b=>b.classList.remove('sel'));btn.classList.add('sel');}
+function closeModal(){document.getElementById('modalOv').classList.remove('open');const active=document.querySelector('.page.active');if(active)go(active.id.replace('pg-',''));}
+
+// ═══════════════════════════════════
+// FINANCE
+// ═══════════════════════════════════
+function renderFinance(){
+  const pts=P(),el=document.getElementById('pg-finance');
+  const allPay=pts.flatMap(p=>(p.payments||[]).map(py=>({...py,patient:p.name,patientId:p.id})));
+  const paid=allPay.filter(p=>p.status==='paid').reduce((s,p)=>s+p.amount,0);
+  const pending=allPay.filter(p=>p.status==='pending').reduce((s,p)=>s+p.amount,0);
+  const late=allPay.filter(p=>p.status==='late').reduce((s,p)=>s+p.amount,0);
+
+  // monthly chart data
+  const months={};allPay.filter(p=>p.status==='paid').forEach(p=>{const m=p.date.slice(0,7);months[m]=(months[m]||0)+p.amount;});
+  const mKeys=Object.keys(months).sort();
+
+  el.innerHTML=`
+    <div class="fin-summary">
+      <div class="fin-box green"><div class="v">${fmt$(paid)}</div><div class="l">✅ Recebido</div></div>
+      <div class="fin-box blue"><div class="v">${fmt$(pending)}</div><div class="l">⏳ A receber</div></div>
+      <div class="fin-box red"><div class="v">${fmt$(late)}</div><div class="l">🔴 Atrasado</div></div>
+    </div>
+
+    <div class="card" style="margin-bottom:20px"><div class="card-h"><div class="card-t">Registrar pagamento</div></div><div class="card-b">
+      <div class="fin-form">
+        <div class="nm-g"><label>Paciente</label><select id="finPat">${pts.map(p=>`<option value="${p.id}">${p.name}</option>`).join('')}</select></div>
+        <div class="nm-g"><label>Valor (R$)</label><input type="number" step="0.01" id="finVal" placeholder="250"/></div>
+        <div class="nm-g"><label>Data</label><input type="date" id="finDate" value="${new Date().toISOString().slice(0,10)}"/></div>
+        <div class="nm-g"><label>Status</label><select id="finSt"><option value="paid">Pago</option><option value="pending">Pendente</option><option value="late">Atrasado</option></select></div>
+        <button class="btn-fin" onclick="addPay()">+ Adicionar</button>
       </div>
+    </div></div>
 
-      <!-- Patient info -->
-      <div class="modal-notes">
-        <h4>📋 Informações do paciente</h4>
-        <p>
-          <strong>Objetivo:</strong> ${GOAL_LABELS[p.goal] || p.goal}<br>
-          <strong>Idade:</strong> ${p.age || '—'} · <strong>Sexo:</strong> ${p.sex || '—'}<br>
-          ${p.restrictions ? '<strong>Restrições:</strong> ' + p.restrictions + '<br>' : ''}
-          ${p.conditions ? '<strong>Condições:</strong> ' + p.conditions + '<br>' : ''}
-          ${p.notes ? '<strong>Obs:</strong> ' + p.notes + '<br>' : ''}
-          <strong>WhatsApp:</strong> ${p.phone || '—'}
-        </p>
+    <div class="cols">
+      <div class="card"><div class="card-h"><div class="card-t">Faturamento mensal</div></div><div class="card-b"><div class="chart-c"><canvas id="chFin"></canvas></div></div></div>
+      <div class="card"><div class="card-h"><div class="card-t">Pagamentos recentes</div><div class="badge">${allPay.length}</div></div><div class="card-b"><div class="tbl-wrap"><table><thead><tr><th>Data</th><th>Paciente</th><th>Descrição</th><th>Valor</th><th>Status</th></tr></thead><tbody>
+        ${[...allPay].sort((a,b)=>b.date.localeCompare(a.date)).slice(0,10).map(p=>{const sc={paid:'pay-ok',pending:'pay-pend',late:'pay-late'}[p.status];const sl={paid:'Pago',pending:'Pendente',late:'Atrasado'}[p.status];return`<tr><td>${fmtD(p.date)}</td><td>${p.patient}</td><td>${p.desc||'—'}</td><td><strong>${fmt$(p.amount)}</strong></td><td><span class="pay-status ${sc}">${sl}</span></td></tr>`;}).join('')}
+      </tbody></table></div></div></div>
+    </div>`;
+
+  if(mKeys.length){
+    new Chart(document.getElementById('chFin'),{type:'bar',data:{labels:mKeys.map(k=>{const[y,m]=k.split('-');return m+'/'+y;}),datasets:[{label:'Faturamento',data:mKeys.map(k=>months[k]),backgroundColor:'#2D9D7840',borderColor:'#2D9D78',borderWidth:2,borderRadius:8}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{grid:{display:false},ticks:{font:{size:11},color:'#9196A1'}},y:{grid:{color:'#F0F1F4'},ticks:{font:{size:11},color:'#9196A1',callback:v=>'R$'+v}}}}});
+  }
+}
+
+function addPay(){
+  const id=document.getElementById('finPat').value,val=parseFloat(document.getElementById('finVal').value);
+  if(!val){alert('Informe o valor.');return;}
+  const pts=P(),p=pts.find(x=>x.id===id);if(!p)return;
+  if(!p.payments)p.payments=[];
+  p.payments.push({date:document.getElementById('finDate').value,amount:val,desc:'Consulta',status:document.getElementById('finSt').value});
+  SP(pts);renderFinance();
+}
+
+// ═══════════════════════════════════
+// MEAL PLANS
+// ═══════════════════════════════════
+let mealData={patientId:'',meals:[]};
+
+function renderMeals(){
+  const pts=P(),el=document.getElementById('pg-meals');
+  // Load saved plans
+  const savedPlans=pts.flatMap(p=>(p.mealPlans||[]).map(mp=>({...mp,patient:p.name,patientId:p.id})));
+
+  el.innerHTML=`
+    <div class="meal-builder">
+      <div class="card"><div class="card-h"><div class="card-t">Criar plano alimentar</div></div><div class="card-b">
+        <div class="meal-patient-select">
+          <div class="nm-g" style="flex:1"><label>Paciente</label><select id="mealPat" onchange="mealData.patientId=this.value">${pts.map(p=>`<option value="${p.id}">${p.name} — ${GL[p.goal]||p.goal}</option>`).join('')}</select></div>
+          <div class="nm-g"><label>Nome do plano</label><input type="text" id="mealPlanName" placeholder="Ex: Semana 1 — Cutting" style="width:220px"/></div>
+        </div>
+        <div id="mealsArea"></div>
+        <button class="btn-add-meal" onclick="addMealCard()">➕ Adicionar refeição</button>
+        <div class="meal-actions">
+          <button class="btn-save-plan" onclick="savePlan()">💾 Salvar plano alimentar</button>
+          <button class="btn-print-plan" onclick="printPlan()">🖨️ Imprimir</button>
+        </div>
+      </div></div>
+    </div>
+
+    ${savedPlans.length?`<div class="saved-plans"><h3 style="font-family:'Fraunces',serif;font-size:18px;color:var(--s9);margin-bottom:14px;">Planos salvos</h3>${savedPlans.map(sp=>`
+      <div class="saved-plan" onclick="loadPlan('${sp.patientId}','${sp.id}')">
+        <div class="saved-plan-info"><span>📋</span><div><div class="sp-name">${sp.name}</div><div class="sp-meta">${sp.patient} · ${fmtD(sp.date)} · ${sp.meals.length} refeições</div></div></div>
+        <div class="sp-badge">${sp.meals.reduce((s,m)=>s+m.foods.length,0)} alimentos</div>
+      </div>`).join('')}</div>`:''}`;
+
+  mealData={patientId:pts[0]?.id||'',meals:[]};
+  addMealCard();addMealCard();addMealCard();
+}
+
+let mealCounter=0;
+function addMealCard(name='',foods=null){
+  mealCounter++;
+  const id='meal_'+mealCounter;
+  const defaults=['Café da manhã','Lanche da manhã','Almoço','Lanche da tarde','Jantar','Ceia'];
+  const mealIdx=document.querySelectorAll('#mealsArea .meal-card').length;
+  const mealName=name||defaults[mealIdx]||'Refeição';
+
+  const card=document.createElement('div');card.className='meal-card';card.id=id;
+  card.innerHTML=`
+    <div class="meal-card-h">
+      <input type="text" value="${mealName}" style="border:none;background:transparent;font-family:inherit;font-size:15px;font-weight:700;color:var(--em-d);outline:none;width:200px;" class="meal-name-input"/>
+      <div style="display:flex;align-items:center;gap:8px;">
+        <span class="meal-kcal" data-id="${id}">0 kcal</span>
+        <button onclick="document.getElementById('${id}').remove()" style="width:28px;height:28px;border-radius:6px;border:none;background:var(--cor-p);color:var(--cor);cursor:pointer;font-size:14px;">✕</button>
       </div>
     </div>
-  `;
+    <div class="meal-rows" id="${id}_foods">
+      ${foods?foods.map(f=>foodRowHTML(id,f.name,f.qty,f.kcal)).join(''):''}
+    </div>
+    <div style="padding:4px 20px 12px"><button class="btn-add-food" onclick="addFoodRow('${id}')">+ Adicionar alimento</button></div>`;
+  document.getElementById('mealsArea').appendChild(card);
 
-  document.getElementById('modalOverlay').classList.add('open');
+  if(!foods){addFoodRow(id);addFoodRow(id);}
+}
 
-  // Chart
-  setTimeout(() => {
-    const labels = p.records.map(r => { const [,m,d] = r.date.split('-'); return d+'/'+m; });
-    const datasets = [
-      { label: 'Peso (kg)', data: p.records.map(r => r.weight), borderColor: '#2D9D78', backgroundColor: '#2D9D7820', borderWidth: 2.5, pointRadius: 5, tension: 0.3, fill: true }
-    ];
-    if (p.records.some(r => r.waist)) {
-      datasets.push({ label: 'Cintura (cm)', data: p.records.map(r => r.waist), borderColor: '#E5A832', borderWidth: 2, pointRadius: 4, tension: 0.3, borderDash: [5,3] });
-    }
-    if (p.records.some(r => r.fat)) {
-      datasets.push({ label: 'Gordura (%)', data: p.records.map(r => r.fat), borderColor: '#E06B5E', borderWidth: 2, pointRadius: 4, tension: 0.3, borderDash: [3,3] });
-    }
-    // Goal weight line
-    if (p.goalWeight) {
-      datasets.push({ label: 'Meta', data: p.records.map(() => p.goalWeight), borderColor: '#4A8FD6', borderWidth: 1.5, pointRadius: 0, borderDash: [8,4], fill: false });
-    }
+function foodRowHTML(mealId,name='',qty='',kcal=''){
+  const fid='f_'+(++mealCounter);
+  return`<div class="meal-row" id="${fid}"><input type="text" placeholder="Alimento" value="${name}" class="food-name" oninput="calcMealKcal('${mealId}')"/><input type="text" placeholder="Qtd" value="${qty}" class="qty" style="width:80px;flex:none;text-align:center;"/><input type="number" placeholder="kcal" value="${kcal}" class="food-kcal" style="width:70px;flex:none;text-align:center;" oninput="calcMealKcal('${mealId}')"/><button class="meal-row-del" onclick="document.getElementById('${fid}').remove();calcMealKcal('${mealId}')">✕</button></div>`;
+}
 
-    new Chart(document.getElementById('modalChart'), {
-      type: 'line',
-      data: { labels, datasets },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: { legend: { position: 'bottom', labels: { font: { family: 'Plus Jakarta Sans', size: 11 }, usePointStyle: true, padding: 12 } } },
-        scales: {
-          x: { grid: { display: false }, ticks: { font: { size: 11 }, color: '#9196A1' } },
-          y: { grid: { color: '#F0F1F4' }, ticks: { font: { size: 11 }, color: '#9196A1' } }
-        }
-      }
+function addFoodRow(mealId){
+  const area=document.getElementById(mealId+'_foods');
+  area.insertAdjacentHTML('beforeend',foodRowHTML(mealId));
+}
+
+function calcMealKcal(mealId){
+  const card=document.getElementById(mealId);if(!card)return;
+  const kcals=[...card.querySelectorAll('.food-kcal')].reduce((s,el)=>s+(parseFloat(el.value)||0),0);
+  card.querySelector('.meal-kcal').textContent=kcals+' kcal';
+}
+
+function gatherPlanData(){
+  const cards=document.querySelectorAll('#mealsArea .meal-card');
+  const meals=[];
+  cards.forEach(card=>{
+    const name=card.querySelector('.meal-name-input').value;
+    const rows=card.querySelectorAll('.meal-row');
+    const foods=[];
+    rows.forEach(row=>{
+      const n=row.querySelector('.food-name').value;
+      const q=row.querySelector('.qty').value;
+      const k=parseFloat(row.querySelector('.food-kcal').value)||0;
+      if(n.trim())foods.push({name:n,qty:q,kcal:k});
     });
-  }, 100);
+    if(foods.length)meals.push({name,foods});
+  });
+  return meals;
 }
 
-function toggleMeasureForm() {
-  const form = document.getElementById('nmForm');
-  form.classList.toggle('open');
+function savePlan(){
+  const meals=gatherPlanData();
+  if(!meals.length){alert('Adicione ao menos uma refeição com alimentos.');return;}
+  const patId=document.getElementById('mealPat').value;
+  const planName=document.getElementById('mealPlanName').value||'Plano alimentar';
+  const pts=P(),p=pts.find(x=>x.id===patId);if(!p)return;
+  if(!p.mealPlans)p.mealPlans=[];
+  p.mealPlans.push({id:Date.now().toString(36),name:planName,date:new Date().toISOString().slice(0,10),meals});
+  SP(pts);
+  alert('Plano salvo com sucesso!');
+  renderMeals();
 }
 
-function saveMeasurement(patientId) {
-  const weight = parseFloat(document.getElementById('nmWeight').value);
-  if (!weight) { alert('Informe pelo menos o peso.'); return; }
-
-  const patients = getPatients();
-  const p = patients.find(x => x.id === patientId);
-  if (!p) return;
-
-  const height = p.records[0].height;
-  const bmi = (weight / ((height / 100) ** 2)).toFixed(1);
-
-  const newRecord = {
-    date: document.getElementById('nmDate').value || new Date().toISOString().slice(0, 10),
-    weight,
-    height,
-    bmi: parseFloat(bmi),
-    waist: parseFloat(document.getElementById('nmWaist').value) || null,
-    fat: parseFloat(document.getElementById('nmFat').value) || null,
-    obs: document.getElementById('nmObs').value || null
-  };
-
-  p.records.push(newRecord);
-  // Sort records by date
-  p.records.sort((a, b) => a.date.localeCompare(b.date));
-  // Auto-update status from 'new' to 'active'
-  if (p.status === 'new') p.status = 'active';
-
-  savePatients(patients);
-
-  // Reopen the modal to refresh everything
-  openPatient(patientId);
+function loadPlan(patientId,planId){
+  const pts=P(),p=pts.find(x=>x.id===patientId);if(!p)return;
+  const plan=(p.mealPlans||[]).find(mp=>mp.id===planId);if(!plan)return;
+  document.getElementById('mealPat').value=patientId;
+  document.getElementById('mealPlanName').value=plan.name;
+  document.getElementById('mealsArea').innerHTML='';
+  mealCounter=0;
+  plan.meals.forEach(m=>addMealCard(m.name,m.foods));
 }
 
-function changeStatus(patientId, newStatus) {
-  const patients = getPatients();
-  const p = patients.find(x => x.id === patientId);
-  if (!p) return;
-  p.status = newStatus;
-  savePatients(patients);
-  // Update buttons visually
-  document.querySelectorAll('.status-btn').forEach(b => b.classList.remove('selected'));
-  document.querySelector(`.sb-${newStatus}`).classList.add('selected');
-}
+function printPlan(){
+  const meals=gatherPlanData();if(!meals.length){alert('Nenhuma refeição para imprimir.');return;}
+  const pts=P(),patId=document.getElementById('mealPat').value,p=pts.find(x=>x.id===patId);
+  const planName=document.getElementById('mealPlanName').value||'Plano Alimentar';
+  const totalKcal=meals.reduce((s,m)=>s+m.foods.reduce((ss,f)=>ss+f.kcal,0),0);
 
-function closeModal() {
-  document.getElementById('modalOverlay').classList.remove('open');
-  // Refresh dashboard if it's visible
-  if (document.getElementById('dashView').classList.contains('active')) {
-    renderDashboard();
-  }
+  const win=window.open('','_blank');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${planName}</title>
+    <style>body{font-family:system-ui,sans-serif;max-width:700px;margin:40px auto;padding:0 20px;color:#333;}
+    h1{font-size:22px;border-bottom:2px solid #2D9D78;padding-bottom:8px;color:#1A1D23;}
+    .meta{font-size:13px;color:#666;margin-bottom:24px;}
+    .meal{margin-bottom:24px;}
+    .meal h3{font-size:16px;color:#2D9D78;margin-bottom:8px;border-left:3px solid #2D9D78;padding-left:10px;}
+    table{width:100%;border-collapse:collapse;font-size:13px;}
+    th{text-align:left;padding:6px 10px;background:#F0F1F4;border-bottom:1px solid #DFE1E6;font-size:11px;text-transform:uppercase;letter-spacing:0.5px;color:#666;}
+    td{padding:8px 10px;border-bottom:1px solid #F0F1F4;}
+    .total{text-align:right;font-size:14px;font-weight:700;color:#2D9D78;margin-top:16px;}
+    @media print{body{margin:20px;}}</style></head><body>
+    <h1>🥗 ${planName}</h1>
+    <div class="meta">Paciente: <strong>${p?p.name:'—'}</strong> · Data: ${fmtD(new Date().toISOString().slice(0,10))}</div>
+    ${meals.map(m=>`<div class="meal"><h3>${m.name}</h3><table><thead><tr><th>Alimento</th><th>Quantidade</th><th>Kcal</th></tr></thead><tbody>${m.foods.map(f=>`<tr><td>${f.name}</td><td>${f.qty}</td><td>${f.kcal}</td></tr>`).join('')}</tbody></table></div>`).join('')}
+    <div class="total">Total: ${totalKcal} kcal</div>
+    </body></html>`);
+  win.document.close();
+  setTimeout(()=>win.print(),300);
 }
 
 // ═══ INIT ═══
+go('dash');
 </script>
 </body>
 </html>
